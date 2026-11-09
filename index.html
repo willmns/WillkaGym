@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b0f14">
-<meta name="apple-mobile-web-app-title" content="WikaGym">
+<meta name="apple-mobile-web-app-title" content="Willka Gym">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>WikaGym</title>
+<title>Willka Gym</title>
 <style>
 :root{--bg:#0f172a;--card:#1e293b;--line:#334155;--txt:#f1f5f9;--mut:#94a3b8;--acc:#22c55e;--acc2:#38bdf8;--warn:#f59e0b}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -168,7 +168,7 @@ body[data-p="k"]{--acc:#f472b6;--acc2:#c084fc}
 <header>
   <div class="perfis" id="perfis" role="tablist" aria-label="Perfil"><button type="button" class="pf on" data-p="w" role="tab" aria-selected="true">Willian</button><button type="button" class="pf" data-p="k" role="tab" aria-selected="false">Karina</button></div>
   <div class="hrow">
-    <div><h1>WikaGym</h1><div class="sub" id="hoje"></div></div>
+    <div><h1>Willka Gym</h1><div class="sub" id="hoje"></div></div>
     <div class="hbtns"><button class="gear" id="bCorpo" aria-label="Corpo: peso e medidas" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M8 9.5a4 4 0 0 1 8 0"/><path d="M12 9.5l1.8-1.6"/><path d="M8.5 16h7"/></svg></button><button class="gear" id="bCfg" aria-label="Configurações" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><polygon points="10.21,4.82 10.37,1.73 13.63,1.73 13.79,4.82 15.81,5.66 18.11,3.59 20.41,5.89 18.34,8.19 19.18,10.21 22.27,10.37 22.27,13.63 19.18,13.79 18.34,15.81 20.41,18.11 18.11,20.41 15.81,18.34 13.79,19.18 13.63,22.27 10.37,22.27 10.21,19.18 8.19,18.34 5.89,20.41 3.59,18.11 5.66,15.81 4.82,13.79 1.73,13.63 1.73,10.37 4.82,10.21 5.66,8.19 3.59,5.89 5.89,3.59 8.19,5.66"/><circle cx="12" cy="12" r="3.2"/></svg></button></div>
   </div>
   <div class="frase" id="frase" role="button" tabindex="0" aria-label="Toque para ver outra frase"></div>
@@ -194,7 +194,7 @@ body[data-p="k"]{--acc:#f472b6;--acc2:#c084fc}
   <div class="sheet-in">
     <div class="shead"><h2>Configurações</h2><button class="x" id="bFechar" aria-label="Fechar" type="button">Fechar</button></div>
     <div class="sec2">Backup dos dados</div>
-    <p class="hint">Seus dados (cargas, fotos, trocas e ciclo) ficam guardados neste aparelho. O backup salva tudo em um arquivo de Willian e Karina para você guardar na pasta WikaGym do iCloud.</p>
+    <p class="hint">Seus dados (cargas, fotos, trocas e ciclo) ficam guardados neste aparelho. O backup salva tudo em um arquivo de Willian e Karina para você guardar na pasta Willka Gym do iCloud.</p>
     <button class="btn big" id="bExp" type="button">Exportar backup</button>
     <p class="hint">Gera o arquivo e abre o menu de compartilhar. Escolha Salvar em Arquivos.</p>
     <button class="btn big" id="bImp" type="button">Importar backup</button>
@@ -349,7 +349,7 @@ function cicloCount(){return Object.keys(store.ciclo.dias).length;}
 function cicloHTML(){
   const n=cicloCount(),tot=PLANO.dias,falta=Math.max(0,tot-n);
   let h='<div class="ciclo'+(n>=tot?' fim':'')+'"><div class="crow"><b>Ciclo do treino</b><span>'+Math.min(n,tot)+' de '+tot+' dias</span></div><div class="cbar"><i style="width:'+Math.min(100,n/tot*100)+'%"></i></div>';
-  if(n>=tot)h+='<p><b>Ciclo completo!</b> Você concluiu os '+tot+' dias. Hora de trocar o treino: peça ao Claude para trocar o treino do WikaGym ('+PERFIS[PERFIL].nome+').</p>';
+  if(n>=tot)h+='<p><b>Ciclo completo!</b> Você concluiu os '+tot+' dias. Hora de trocar o treino: peça ao Claude para trocar o treino do Willka Gym ('+PERFIS[PERFIL].nome+').</p>';
   else h+='<small>Faltam '+falta+(falta===1?' dia':' dias')+' para trocar o treino.</small>';
   return h+'</div>';
 }
@@ -366,7 +366,7 @@ function finalizaDia(){
   const T=TREINOS[atual],fe=store.feitos[h]||{},n=T.ids.filter(id=>fe[id]).length;
   if(n<T.ids.length&&!confirm('Você marcou '+n+' de '+T.ids.length+' exercícios. Finalizar o dia mesmo assim?'))return;
   store.ciclo.dias[h]=atual;gravar();render();
-  if(cicloCount()>=PLANO.dias)setTimeout(()=>alert('Ciclo completo! Você concluiu '+PLANO.dias+' dias de treino. Hora de trocar o treino: peça ao Claude para trocar o treino do WikaGym ('+PERFIS[PERFIL].nome+').'),60);
+  if(cicloCount()>=PLANO.dias)setTimeout(()=>alert('Ciclo completo! Você concluiu '+PLANO.dias+' dias de treino. Hora de trocar o treino: peça ao Claude para trocar o treino do Willka Gym ('+PERFIS[PERFIL].nome+').'),60);
 }
 
 
@@ -634,11 +634,11 @@ $('bFechar').onclick=()=>{$('cfg').hidden=true;document.body.style.overflow='';}
 
 /* ---------- BACKUP ---------- */
 $('bExp').onclick=async()=>{
-  const nome='wikagym-backup-'+hojeISO()+'.json';
+  const nome='willka-gym-backup-'+hojeISO()+'.json';
   const blob=new Blob([JSON.stringify({app:'wikagym',v:1,exportado:new Date().toISOString(),dados:DB},null,2)],{type:'application/json'});
   try{
     const file=new File([blob],nome,{type:'application/json'});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Backup WikaGym'});return;}
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Backup Willka Gym'});return;}
   }catch(e){if(e&&e.name==='AbortError')return;}
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nome;document.body.appendChild(a);a.click();a.remove();
 };
@@ -655,7 +655,7 @@ $('fImp').onchange=ev=>{
       if(novo)DB=o.dados;else DB.perfis.w=o.dados;
       normaliza();aplicaPerfil(DB.perfil);gravar();render();
       alert('Backup importado com sucesso.');
-    }catch(e){alert('Esse arquivo não parece ser um backup do WikaGym.');}
+    }catch(e){alert('Esse arquivo não parece ser um backup do Willka Gym.');}
     $('fImp').value='';
   };
   r.readAsText(f);
