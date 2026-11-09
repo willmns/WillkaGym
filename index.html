@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0b0f14">
+<meta name="apple-mobile-web-app-title" content="WikaGym">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>WikaGym</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--line:#334155;--txt:#f1f5f9;--mut:#94a3b8;--acc:#22c55e;--acc2:#38bdf8;--warn:#f59e0b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;padding-bottom:90px}
+header{padding:calc(14px + env(safe-area-inset-top)) 16px 10px}
+h1{margin:0;font-size:22px}
+.sub{color:var(--mut);font-size:13px}
+.tabs{display:flex;gap:6px;padding:0 16px 10px;position:sticky;top:0;background:var(--bg);z-index:5}
+.tab{flex:1;padding:8px 2px;border:0;background:var(--card);color:var(--mut);border-radius:10px;font-size:13px;font-weight:600;font-family:inherit;white-space:nowrap}
+.tab.on{background:var(--acc);color:#052e16}
+main{padding:0 16px}
+.warn{background:#451a03;border:1px solid var(--warn);color:#fde68a;padding:10px 12px;border-radius:10px;font-size:13px;margin-bottom:12px;display:none}
+.info{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:14px;color:var(--mut)}
+.info b{color:var(--txt)}
+.prog,.cbar{height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin:6px 0 12px}
+.prog i,.cbar i{display:block;height:100%;width:0;background:var(--acc);transition:width .3s}
+.cbar{margin:6px 0 0}
+.cbar i{background:var(--acc2)}
+.ciclo{padding:0 2px;margin-bottom:12px;font-size:13px;color:var(--mut)}
+.ciclo .crow{display:flex;justify-content:space-between;gap:10px}
+.ciclo .crow span{color:var(--acc2);font-weight:600}
+.ciclo .crow b{font-weight:500}
+.ciclo small{color:var(--mut)}
+.ciclo.fim{background:#2a1f08;border-radius:12px;padding:10px 12px}
+.ciclo.fim .crow span{color:var(--warn)}
+.ciclo.fim p{margin:6px 0 0;font-size:14px;color:#fde68a}
+.ex{background:var(--card);border-radius:14px;padding:10px;margin-bottom:10px;border:1px solid transparent}
+.ex.done{border-color:#166534}
+.ex.done .nm{color:var(--mut)}
+.hd{display:flex;gap:10px;align-items:center}
+.ck{flex:none;width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:none;color:transparent;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
+.ex.done .ck{background:var(--acc);border-color:var(--acc);color:#052e16}
+.th{flex:none;width:76px;height:76px;border-radius:10px;overflow:hidden;background:#fff;border:0;padding:0;display:block;position:relative}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.th.sem{background:#0b1220;border:1px dashed var(--line);color:var(--mut);font-size:11px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;padding:4px;font-family:inherit}
+.tt{flex:1;min-width:0}
+.nm{font-size:16px;font-weight:700;line-height:1.2}
+.mus{color:var(--mut);font-size:12px;margin-top:2px}
+.meta{font-size:12px;color:var(--mut);margin-top:3px}
+.meta b{color:var(--txt);font-weight:600}
+.meta .tr{color:var(--acc2)}
+.alt-btn{flex:none;background:none;border:1px solid var(--line);color:var(--acc2);border-radius:10px;width:38px;height:38px;font-size:18px;padding:0;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.alt-btn.open{border-color:var(--acc2);background:#0b1220}
+.altbox{background:#0b1220;border-radius:12px;padding:8px 12px;margin:10px 0 0;font-size:14px}
+.altbox[hidden]{display:none}
+.altbox h4{margin:0 0 2px;font-size:12px;color:var(--mut);font-weight:500}
+.altbox .it{padding:9px 0;border-top:1px solid var(--line)}
+.altbox .it:first-of-type{border-top:0}
+.altbox .it b{display:block}
+.altbox .it span{color:#cbd5e1;display:block;margin:2px 0 6px;font-size:13px}
+.altbox .r2{display:flex;gap:12px;align-items:center}
+.altbox .usar{background:var(--acc2);color:#082f49;border:0;border-radius:8px;padding:7px 12px;font-weight:700;font-size:13px;font-family:inherit}
+.altbox .it a{font-size:13px;color:var(--acc2);text-decoration:none;font-weight:600}
+.ld{display:flex;gap:8px;margin-top:10px}
+.ld input{padding:8px 10px;font-size:15px;border-radius:9px}
+.ld .kg{width:78px;flex:none}
+.sp{display:flex;align-items:center;gap:10px;margin-top:6px;min-height:28px;font-size:12px;color:var(--mut)}
+.sp svg{flex:none;width:96px;height:28px;display:block}
+.sp .ln{fill:none;stroke:var(--acc2);stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+.sp circle{fill:var(--acc)}
+.sp .up{color:var(--acc);font-weight:600}
+.sp .dn{color:var(--warn);font-weight:600}
+.mi{margin-top:6px;font-size:14px}
+.mi summary{list-style:none;cursor:pointer;padding:8px 0 2px;color:var(--mut);font-size:13px;display:flex;align-items:center;gap:6px}
+.mi summary::-webkit-details-marker{display:none}
+.mi summary::after{content:"\25BE";font-size:11px;transition:transform .2s}
+.mi[open] summary::after{transform:rotate(180deg)}
+.mi .in{padding:6px 0 4px;display:flex;flex-direction:column;gap:8px;color:var(--txt)}
+.mi .in b{font-size:13px;color:var(--mut);font-weight:600;display:block}
+.mi .in p{margin:0;color:#cbd5e1}
+.mi .in ol{margin:2px 0 0;padding-left:20px;color:#cbd5e1}
+.mi .alerta{border-left:3px solid var(--warn);padding-left:10px}
+.links{display:flex;gap:14px;font-size:13px}
+.links a{color:var(--acc2);text-decoration:none;font-weight:600}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row label{font-size:12px;color:var(--mut);display:block}
+input[type=number],input[type=text]{background:#0b1220;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px;font-size:16px;width:100%}
+.c1{width:96px}.c2{flex:1;min-width:120px}
+.btn{border:1px solid var(--line);background:#0b1220;color:var(--txt);border-radius:10px;padding:10px 12px;font-size:14px;text-decoration:none;display:inline-block;font-family:inherit}
+.btn.ok{background:var(--acc);border-color:var(--acc);color:#052e16;font-weight:700}
+.btn.on{background:#14532d;border-color:var(--acc);color:#bbf7d0}
+.last{font-size:12px;color:var(--mut);margin-top:6px}
+.fin{width:100%;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:700;background:var(--acc2);color:#082f49;font-family:inherit;margin-top:4px}
+.fin.ok{background:#14532d;color:#bbf7d0}
+.finh{font-size:12px;color:var(--mut);text-align:center;margin:6px 0 14px}
+.sem7{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px}
+.sd{background:var(--card);border:1px solid transparent;border-radius:10px;padding:6px 0;text-align:center;font-family:inherit;color:var(--txt);line-height:1.15}
+.sd small{display:block;font-size:10px;color:var(--mut);text-transform:uppercase}
+.sd b{display:block;font-size:15px;margin-top:1px}
+.sd i{display:block;font-style:normal;font-size:10px;color:var(--mut);margin-top:1px;min-height:12px}
+.sd.hoje{border-color:var(--acc)}
+.sd.sel{background:#14532d}
+.sd.fei i{color:var(--acc);font-weight:700}
+.sd.off{opacity:.55}
+.semleg{font-size:11px;color:var(--mut);text-align:center;margin:-6px 0 12px}
+.thead{display:flex;justify-content:space-between;align-items:baseline;margin:2px 2px 0}
+.thead b{font-size:15px}
+.thead span{font-size:13px;color:var(--mut)}
+.viewer{position:fixed;inset:0;background:rgba(2,6,23,.96);z-index:60;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:calc(16px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom))}
+.viewer[hidden]{display:none}
+.viewer .vimg{width:100%;max-width:560px;background:#fff;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:160px;color:#475569;font-size:14px;text-align:center;padding:0}
+.viewer img{width:100%;height:auto;display:block;max-height:70vh;object-fit:contain}
+.viewer h3{margin:12px 0 10px;font-size:17px;max-width:560px;width:100%}
+.vbtns{display:flex;gap:8px;flex-wrap:wrap;max-width:560px;width:100%}
+.vbtns .btn{flex:1;text-align:center;min-width:120px}
+.frase{margin-top:10px;font-size:14px;font-style:italic;color:var(--acc);cursor:pointer;min-height:20px}
+.chart{background:#0b1220;border:1px solid var(--line);border-radius:12px;padding:8px;margin:8px 0}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{fill:#94a3b8;font-size:10px;font-family:inherit}
+.chart .ln{fill:none;stroke:#38bdf8;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.chart .ax{stroke:#334155;stroke-width:1}
+.chart circle{fill:var(--acc)}
+.vazio2{color:var(--mut);font-size:13px;padding:10px 4px}
+.evo{font-size:13px;color:#cbd5e1;margin:4px 0 0}
+.cform{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.cform label{display:block;font-size:12px;color:var(--mut)}
+.cform input{margin-top:4px}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 12px}
+.mchips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.mchip{background:#0b1220;border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:6px 12px;font-size:13px;font-family:inherit}
+.mchip.on{background:var(--acc2);border-color:var(--acc2);color:#082f49;font-weight:700}
+.resumo{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.resumo b{color:var(--acc2)}
+.reg{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.reg:first-of-type{border-top:0}
+.reg small{color:var(--mut);display:block}
+.reg button{background:none;border:1px solid var(--line);color:var(--mut);border-radius:8px;padding:6px 10px;font-size:12px;font-family:inherit}
+.hrow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.gear{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:12px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;padding:0}
+.hbtns{display:flex;gap:8px}
+.gear.on{background:var(--acc);border-color:var(--acc);color:#052e16}
+.gear svg{width:24px;height:24px}
+.sheet{position:fixed;inset:0;background:var(--bg);z-index:50;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sheet[hidden]{display:none}
+.sheet-in{max-width:560px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom))}
+.shead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.shead h2{margin:0;font-size:22px}
+.x{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 14px;font-size:14px;font-family:inherit}
+.sec2{font-weight:700;margin:18px 0 6px;color:var(--acc)}
+.hint{font-size:13px;color:var(--mut);margin:6px 0 14px}
+.btn.big{display:block;width:100%;padding:14px;font-size:16px;text-align:center;font-weight:600}
+.timer{position:fixed;right:14px;bottom:calc(16px + env(safe-area-inset-bottom));background:var(--acc2);color:#082f49;font-weight:700;border:0;border-radius:999px;padding:12px 18px;font-size:15px;z-index:9;box-shadow:0 4px 14px #0008;font-family:inherit}
+.sec{font-weight:700;margin:18px 0 8px}
+.plan{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.plan div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center;font-size:13px}
+.plan div b{display:block;font-size:16px;color:var(--acc)}
+body[data-p="k"]{--acc:#f472b6;--acc2:#c084fc}
+.perfis{display:flex;gap:6px;margin-bottom:12px;background:var(--card);padding:4px;border-radius:14px}
+.pf{flex:1;padding:10px 0;border:0;border-radius:11px;background:transparent;color:var(--mut);font-family:inherit;font-size:16px;font-weight:700}
+.pf.on{background:var(--acc);color:#052e16}
+</style>
+</head>
+<body>
+<header>
+  <div class="perfis" id="perfis" role="tablist" aria-label="Perfil"><button type="button" class="pf on" data-p="w" role="tab" aria-selected="true">Willian</button><button type="button" class="pf" data-p="k" role="tab" aria-selected="false">Karina</button></div>
+  <div class="hrow">
+    <div><h1>WikaGym</h1><div class="sub" id="hoje"></div></div>
+    <div class="hbtns"><button class="gear" id="bCorpo" aria-label="Corpo: peso e medidas" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M8 9.5a4 4 0 0 1 8 0"/><path d="M12 9.5l1.8-1.6"/><path d="M8.5 16h7"/></svg></button><button class="gear" id="bCfg" aria-label="Configurações" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><polygon points="10.21,4.82 10.37,1.73 13.63,1.73 13.79,4.82 15.81,5.66 18.11,3.59 20.41,5.89 18.34,8.19 19.18,10.21 22.27,10.37 22.27,13.63 19.18,13.79 18.34,15.81 20.41,18.11 18.11,20.41 15.81,18.34 13.79,19.18 13.63,22.27 10.37,22.27 10.21,19.18 8.19,18.34 5.89,20.41 3.59,18.11 5.66,15.81 4.82,13.79 1.73,13.63 1.73,10.37 4.82,10.21 5.66,8.19 3.59,5.89 5.89,3.59 8.19,5.66"/><circle cx="12" cy="12" r="3.2"/></svg></button></div>
+  </div>
+  <div class="frase" id="frase" role="button" tabindex="0" aria-label="Toque para ver outra frase"></div>
+</header>
+<div class="tabs" id="tabs"></div>
+<main>
+  <div class="warn" id="warn">Este navegador não está guardando as cargas. Use o botão Exportar com frequência para não perder nada.</div>
+  <div id="treinoView">
+  <div id="semana"></div>
+  <div id="ciclo"></div>
+  <div class="thead"><b id="tnome"></b><span id="tcont"></span></div>
+  <div class="prog"><i id="pg"></i></div>
+  <div id="lista"></div>
+  <div id="fimdia"></div>
+  </div>
+  <div id="corpoView" hidden></div>
+</main>
+
+<button class="timer" id="timer">Descanso 60s</button>
+<input type="file" id="arqFoto" accept="image/*" hidden>
+<div class="viewer" id="viewer" hidden></div>
+<div class="sheet" id="cfg" hidden>
+  <div class="sheet-in">
+    <div class="shead"><h2>Configurações</h2><button class="x" id="bFechar" aria-label="Fechar" type="button">Fechar</button></div>
+    <div class="sec2">Backup dos dados</div>
+    <p class="hint">Seus dados (cargas, fotos, trocas e ciclo) ficam guardados neste aparelho. O backup salva tudo em um arquivo de Willian e Karina para você guardar na pasta WikaGym do iCloud.</p>
+    <button class="btn big" id="bExp" type="button">Exportar backup</button>
+    <p class="hint">Gera o arquivo e abre o menu de compartilhar. Escolha Salvar em Arquivos.</p>
+    <button class="btn big" id="bImp" type="button">Importar backup</button>
+    <p class="hint">Escolha o arquivo de backup. Isso substitui os dados atuais deste aparelho. Use para trocar de celular ou recuperar dados.</p>
+    <input type="file" id="fImp" accept=".json,application/json" hidden>
+    <div class="sec2">Antes de começar</div>
+    <p class="hint" id="aquec"></p>
+  </div>
+</div>
+
+<script>
+
+/* ---------- DADOS ---------- */
+const EX = {"leg": {"n": "Leg press 45°", "m": "Pernas e glúteos", "r": "3 x 12", "d": "Pés na largura dos ombros, na altura média da plataforma. Desça até os joelhos formarem uns 90° e empurre sem travar os joelhos no final. Lombar sempre colada no banco.", "a": {"h": [15, 32], "s": [22, 40], "p": [38, 62], "k": [60, 44], "f": [74, 60], "e": [32, 54], "w": [40, 56], "pr": [[78, 50, 78, 72], [10, 34, 36, 68]]}, "b": {"h": [15, 32], "s": [22, 40], "p": [38, 62], "k": [60, 51], "f": [82, 41], "e": [32, 54], "w": [40, 56], "pr": [[84, 30, 80, 54], [10, 34, 36, 68]]}}, "ext": {"n": "Cadeira extensora", "m": "Frente da coxa", "r": "3 x 12", "d": "Costas coladas no encosto, joelho alinhado com o eixo da máquina. Estenda a perna até quase esticar, segure 1 segundo e desça controlando. Sem balançar o corpo.", "a": {"h": [38, 14], "s": [38, 26], "p": [38, 52], "k": [62, 52], "f": [62, 76], "e": [44, 38], "w": [52, 50], "pr": [[30, 54, 68, 54], [32, 22, 32, 54]]}, "b": {"h": [38, 14], "s": [38, 26], "p": [38, 52], "k": [62, 52], "f": [88, 52], "e": [44, 38], "w": [52, 50], "pr": [[30, 54, 68, 54], [32, 22, 32, 54]]}}, "flex": {"n": "Mesa flexora", "m": "Parte de trás da coxa", "r": "3 x 12", "d": "Deitado de barriga para baixo, quadril colado no banco. Leve os calcanhares em direção ao bumbum e volte devagar (2 a 3 segundos). Não levante o quadril.", "a": {"h": [14, 50], "s": [24, 52], "p": [56, 52], "k": [82, 52], "f": [100, 52], "e": [30, 56], "w": [38, 56], "pr": [[8, 58, 96, 58]]}, "b": {"h": [14, 50], "s": [24, 52], "p": [56, 52], "k": [82, 52], "f": [78, 26], "e": [30, 56], "w": [38, 56], "pr": [[8, 58, 96, 58]]}}, "smith": {"n": "Agachamento no Smith", "m": "Pernas e glúteos", "r": "3 x 10", "d": "Barra apoiada nos ombros, pés um pouco à frente da barra. Desça como se fosse sentar, joelhos na direção dos pés, peito aberto. Suba empurrando o chão. Comece só com a barra.", "a": {"h": [58, 13], "s": [58, 24], "p": [58, 46], "k": [58, 63], "f": [58, 80], "e": [52, 32], "w": [56, 24], "pr": [[30, 6, 30, 80], [90, 6, 90, 80], [34, 24, 86, 24]]}, "b": {"h": [56, 32], "s": [54, 43], "p": [50, 64], "k": [66, 63], "f": [58, 80], "e": [60, 50], "w": [56, 43], "pr": [[30, 6, 30, 80], [90, 6, 90, 80], [34, 43, 86, 43]]}}, "pant": {"n": "Panturrilha em pé", "m": "Panturrilhas", "r": "3 x 15", "d": "Ponta dos pés na borda do degrau ou máquina. Suba o máximo que conseguir, segure 1 segundo e desça alongando bem. Movimento lento, sem quicar.", "a": {"h": [60, 14], "s": [60, 24], "p": [60, 48], "k": [60, 64], "f": [60, 76], "e": [60, 36], "w": [60, 48], "pr": [[46, 78, 76, 78], [46, 78, 46, 84], [76, 78, 76, 84]]}, "b": {"h": [60, 6], "s": [60, 16], "p": [60, 40], "k": [60, 56], "f": [60, 68], "e": [60, 28], "w": [60, 40], "x": [[60, 68, 66, 76]], "pr": [[46, 78, 76, 78], [46, 78, 46, 84], [76, 78, 76, 84]]}}, "sup": {"n": "Supino reto com halteres", "m": "Peito, ombro e tríceps", "r": "3 x 10", "d": "Deitado no banco, pés firmes no chão. Halteres na linha do peito, empurre para cima sem bater um no outro. Desça devagar até o cotovelo ficar na linha do tronco.", "a": {"h": [14, 52], "s": [26, 54], "p": [62, 54], "k": [80, 42], "f": [88, 58], "e": [30, 66], "w": [26, 50], "c": [[26, 48, 4]], "pr": [[8, 60, 100, 60]]}, "b": {"h": [14, 52], "s": [26, 54], "p": [62, 54], "k": [80, 42], "f": [88, 58], "e": [26, 40], "w": [26, 26], "c": [[26, 24, 4]], "pr": [[8, 60, 100, 60]]}}, "inc": {"n": "Supino inclinado na máquina", "m": "Parte de cima do peito", "r": "3 x 12", "d": "Ajuste o banco para as pegadas ficarem na altura do peito. Costas coladas, empurre à frente sem travar o cotovelo. Volte devagar até sentir o peito alongar.", "a": {"h": [28, 24], "s": [36, 34], "p": [40, 62], "k": [64, 62], "f": [64, 80], "e": [46, 48], "w": [54, 38], "pr": [[26, 26, 38, 64], [32, 64, 68, 64]]}, "b": {"h": [28, 24], "s": [36, 34], "p": [40, 62], "k": [64, 62], "f": [64, 80], "e": [56, 34], "w": [74, 30], "pr": [[26, 26, 38, 64], [32, 64, 68, 64]]}}, "des": {"n": "Desenvolvimento com halteres", "m": "Ombros", "r": "3 x 10", "d": "Sentado, costas retas. Halteres na altura das orelhas, empurre para cima até quase esticar os braços e desça controlando. Não arqueie a lombar.", "a": {"h": [40, 22], "s": [40, 34], "p": [40, 60], "k": [66, 60], "f": [66, 80], "e": [46, 44], "w": [44, 30], "c": [[44, 28, 4]], "pr": [[30, 62, 70, 62], [32, 30, 32, 62]]}, "b": {"h": [40, 22], "s": [40, 34], "p": [40, 60], "k": [66, 60], "f": [66, 80], "e": [44, 20], "w": [44, 6], "c": [[44, 4, 4]], "pr": [[30, 62, 70, 62], [32, 30, 32, 62]]}}, "lat": {"n": "Elevação lateral", "m": "Ombros (lateral)", "r": "3 x 12", "d": "Em pé, cotovelos levemente dobrados. Suba os braços para os lados até a altura dos ombros, como se derramasse água de um jarro. Halteres leves e sem balançar o corpo. (Desenho de frente)", "a": {"h": [60, 14], "s": [60, 24], "p": [60, 48], "k": [56, 64], "f": [56, 80], "e": [50, 36], "w": [48, 48], "x": [[60, 48, 64, 64], [64, 64, 64, 80], [60, 24, 70, 36], [70, 36, 72, 48]], "pr": [[50, 24, 70, 24]], "c": [[48, 50, 3], [72, 50, 3]]}, "b": {"h": [60, 14], "s": [60, 24], "p": [60, 48], "k": [56, 64], "f": [56, 80], "e": [44, 25], "w": [30, 25], "x": [[60, 48, 64, 64], [64, 64, 64, 80], [60, 24, 76, 25], [76, 25, 90, 25]], "pr": [[50, 24, 70, 24]], "c": [[28, 25, 3], [92, 25, 3]]}}, "tri": {"n": "Tríceps na polia (corda)", "m": "Parte de trás do braço", "r": "3 x 12", "d": "Cotovelos colados ao corpo e parados. Só o antebraço se move: estenda os braços para baixo, abrindo a corda no final, e volte devagar até 90°.", "a": {"h": [60, 14], "s": [60, 24], "p": [60, 48], "k": [60, 64], "f": [60, 80], "e": [60, 38], "w": [72, 34], "pr": [[80, 2, 72, 34], [76, 0, 84, 0]]}, "b": {"h": [60, 14], "s": [60, 24], "p": [60, 48], "k": [60, 64], "f": [60, 80], "e": [60, 38], "w": [62, 54], "pr": [[80, 2, 62, 54], [76, 0, 84, 0]]}}, "pux": {"n": "Puxada frontal", "m": "Costas e bíceps", "r": "3 x 12", "d": "Segure a barra mais larga que os ombros. Puxe a barra até a altura do queixo/peito levando os cotovelos para baixo e para trás, peito aberto. Volte devagar, sem dar tranco.", "a": {"h": [44, 24], "s": [44, 36], "p": [40, 62], "k": [66, 58], "f": [66, 80], "e": [50, 18], "w": [56, 4], "pr": [[44, 4, 70, 4], [57, 0, 57, 4], [54, 50, 72, 50]]}, "b": {"h": [44, 24], "s": [44, 36], "p": [40, 62], "k": [66, 58], "f": [66, 80], "e": [38, 46], "w": [54, 32], "pr": [[48, 32, 60, 32], [57, 0, 54, 32], [54, 50, 72, 50]]}}, "rem": {"n": "Remada baixa (triângulo)", "m": "Meio das costas", "r": "3 x 12", "d": "Sentado, pés na plataforma, joelhos levemente dobrados. Puxe o triângulo até o abdômen juntando as escápulas, sem jogar o tronco para trás. Volte devagar.", "a": {"h": [36, 26], "s": [36, 38], "p": [30, 64], "k": [58, 58], "f": [84, 64], "e": [56, 46], "w": [74, 52], "pr": [[74, 52, 102, 58], [86, 56, 86, 76]]}, "b": {"h": [36, 26], "s": [36, 38], "p": [30, 64], "k": [58, 58], "f": [84, 64], "e": [26, 52], "w": [50, 52], "pr": [[50, 52, 102, 58], [86, 56, 86, 76]]}}, "rmq": {"n": "Remada na máquina (peito apoiado)", "m": "Costas", "r": "3 x 12", "d": "Peito apoiado no apoio, pegada neutra. Puxe levando os cotovelos para trás e junte as escápulas. Segure 1 segundo e volte devagar até alongar as costas.", "a": {"h": [52, 24], "s": [46, 34], "p": [42, 62], "k": [66, 62], "f": [66, 80], "e": [62, 42], "w": [76, 40], "pr": [[54, 26, 54, 52], [32, 64, 70, 64]]}, "b": {"h": [52, 24], "s": [46, 34], "p": [42, 62], "k": [66, 62], "f": [66, 80], "e": [40, 46], "w": [60, 42], "pr": [[54, 26, 54, 52], [32, 64, 70, 64]]}}, "ros": {"n": "Rosca direta (barra ou halteres)", "m": "Bíceps", "r": "3 x 12", "d": "Em pé, cotovelos colados ao corpo. Suba a barra até o peito sem balançar e desça devagar. Se precisar jogar o corpo, a carga está alta.", "a": {"h": [60, 14], "s": [60, 24], "p": [60, 48], "k": [60, 64], "f": [60, 80], "e": [60, 38], "w": [62, 52], "c": [[62, 54, 4]]}, "b": {"h": [60, 14], "s": [60, 24], "p": [60, 48], "k": [60, 64], "f": [60, 80], "e": [60, 38], "w": [72, 32], "c": [[73, 30, 4]]}}, "abd": {"n": "Abdominal no solo", "m": "Abdômen", "r": "3 x 15", "d": "Deitado, joelhos dobrados, mãos leves atrás da cabeça. Suba só os ombros tirando as escápulas do chão, expirando. Não puxe o pescoço. Desça devagar.", "a": {"h": [16, 56], "s": [26, 60], "p": [56, 62], "k": [76, 46], "f": [88, 62], "e": [20, 50], "w": [14, 54], "pr": [[4, 66, 100, 66]]}, "b": {"h": [34, 42], "s": [32, 54], "p": [56, 62], "k": [76, 46], "f": [88, 62], "e": [30, 44], "w": [36, 38], "pr": [[4, 66, 100, 66]]}}};
+const INFO = {"leg": {"m": "Quadríceps, glúteos e posterior da coxa", "p": ["Sente com as costas e o quadril bem apoiados no banco.", "Pés na plataforma, na largura dos ombros, e solte as travas de segurança.", "Desça devagar até os joelhos chegarem a uns 90°.", "Empurre a plataforma sem travar os joelhos no final."], "c": "Não deixe o quadril descolar do banco na descida: isso joga a carga na lombar.", "a": ["goblet", "hack", "afundo"]}, "ext": {"m": "Quadríceps (frente da coxa)", "p": ["Ajuste o encosto para o joelho ficar alinhado com o eixo da máquina.", "Prenda os tornozelos sob o apoio, com as mãos nas alças.", "Estenda as pernas até quase esticar e segure 1 segundo.", "Desça devagar, sem deixar o peso bater."], "c": "Não balance o corpo para ajudar. Se precisar, a carga está alta.", "a": ["ext-cane", "goblet", "stepup"]}, "flex": {"m": "Posterior da coxa", "p": ["Deite de barriga para baixo, com o quadril colado no banco.", "Posicione o apoio logo acima dos calcanhares.", "Leve os calcanhares em direção ao bumbum.", "Volte em 2 a 3 segundos, sem soltar o peso."], "c": "Não levante o quadril do banco para ganhar impulso.", "a": ["flex-sent", "stiff", "flex-pe"]}, "smith": {"m": "Quadríceps, glúteos e posterior da coxa", "p": ["Posicione a barra na altura dos ombros e apoie-a na parte de trás dos ombros.", "Pés um pouco à frente da barra, na largura dos ombros.", "Desça como se fosse sentar, com os joelhos na direção dos pés.", "Suba empurrando o chão, sem travar os joelhos."], "c": "Comece só com a barra. Se os calcanhares levantarem, afaste mais os pés para a frente.", "a": ["goblet", "hack", "afundo"]}, "pant": {"m": "Panturrilhas", "p": ["Apoie a ponta dos pés na borda do degrau ou da máquina.", "Desça os calcanhares até sentir alongar.", "Suba o máximo que conseguir e segure 1 segundo.", "Desça devagar, sem quicar."], "c": "Faça o movimento completo: o ganho está no alongamento embaixo e na contração em cima.", "a": ["pant-sent", "pant-lp", "pant-uni"]}, "sup": {"m": "Peito, ombros e tríceps", "p": ["Deite com os pés firmes no chão e os olhos sob os halteres.", "Halteres na linha do peito, cotovelos a uns 45° do corpo.", "Empurre para cima até quase esticar os braços.", "Desça devagar até a linha do peito."], "c": "Não deixe os halteres baterem um no outro e não arqueie demais a lombar.", "a": ["sup-maq", "flexao", "voador"]}, "inc": {"m": "Parte de cima do peito, ombros e tríceps", "p": ["Ajuste o banco para as pegadas ficarem na altura do peito.", "Costas coladas no encosto e pés no chão.", "Empurre à frente até quase esticar os braços.", "Volte devagar, alongando o peito."], "c": "Não levante os ombros em direção às orelhas ao empurrar.", "a": ["inc-halt", "sup-maq", "crossover"]}, "des": {"m": "Ombros e tríceps", "p": ["Sente com as costas retas, apoiadas no encosto.", "Halteres na altura das orelhas, palmas para a frente.", "Empurre para cima até quase esticar os braços.", "Desça controlando até a altura das orelhas."], "c": "Não arqueie a lombar. Se precisar, use um banco com encosto.", "a": ["des-maq", "des-smith", "arnold"]}, "lat": {"m": "Ombros (parte lateral)", "p": ["Em pé, com um halter em cada mão ao lado do corpo.", "Cotovelos levemente dobrados.", "Suba os braços até a altura dos ombros, como derramando água de um jarro.", "Desça devagar, sem balançar o corpo."], "c": "Carga leve. Se o ombro subir perto da orelha, reduza o peso.", "a": ["lat-polia", "lat-maq", "lat-sent"]}, "tri": {"m": "Tríceps", "p": ["Em pé, de frente para a polia alta, com a corda nas mãos.", "Cotovelos colados ao corpo e parados.", "Estenda os braços para baixo, abrindo a corda no final.", "Volte devagar até o antebraço formar 90°."], "c": "Só o antebraço se mexe. Se o ombro subir, a carga está alta.", "a": ["tri-barra", "tri-testa", "mergulho"]}, "pux": {"m": "Costas e bíceps", "p": ["Ajuste o apoio das coxas e segure a barra mais larga que os ombros.", "Peito aberto e ombros para baixo.", "Puxe a barra até a altura do queixo, levando os cotovelos para baixo e para trás.", "Volte devagar, sem dar tranco."], "c": "Não jogue o tronco para trás para puxar: use menos carga.", "a": ["pux-tri", "barra-ass", "pullover"]}, "rem": {"m": "Meio das costas e bíceps", "p": ["Sente com os pés na plataforma e os joelhos levemente dobrados.", "Coluna reta e peito aberto.", "Puxe o triângulo até o abdômen, juntando as escápulas.", "Volte devagar, sem arredondar as costas."], "c": "Não balance o tronco para a frente e para trás.", "a": ["rem-curv", "rem-serr", "rem-maq"]}, "rmq": {"m": "Costas", "p": ["Ajuste o assento para o peito ficar apoiado.", "Segure as pegadas neutras, com os braços esticados.", "Puxe levando os cotovelos para trás e junte as escápulas.", "Segure 1 segundo e volte devagar."], "c": "Não levante os ombros em direção às orelhas.", "a": ["rem-polia", "rem-serr", "pux-polia"]}, "ros": {"m": "Bíceps", "p": ["Em pé, com a barra ou os halteres e os cotovelos colados ao corpo.", "Suba até o peito sem balançar.", "Aperte o bíceps em cima por 1 segundo.", "Desça devagar, até quase esticar o braço."], "c": "Não use o corpo para dar impulso.", "a": ["rosca-mart", "rosca-polia", "rosca-alt"]}, "abd": {"m": "Abdômen", "p": ["Deite com os joelhos dobrados e os pés no chão.", "Mãos leves atrás da cabeça, sem puxar o pescoço.", "Solte o ar e suba só os ombros, tirando as escápulas do chão.", "Desça devagar, sem relaxar totalmente."], "c": "O movimento é curto. Subir o tronco todo sobrecarrega a lombar.", "a": ["prancha", "abd-maq", "elev-joelhos"]}};
+const ALT = {"goblet": {"n": "Agachamento goblet com halter", "m": "Quadríceps e glúteos", "d": "Segure um halter junto ao peito e agache com o tronco ereto.", "p": ["Segure o halter na vertical junto ao peito, pés na largura dos ombros.", "Desça com o tronco ereto, joelhos na direção dos pés.", "Suba empurrando o chão, sem travar os joelhos."], "c": "Se os calcanhares levantarem, afaste um pouco mais os pés ou reduza a descida.", "img": "goblet"}, "hack": {"n": "Hack squat", "m": "Quadríceps e glúteos", "d": "Máquina guiada, parecida com o leg press, mas em pé. Pés na largura dos ombros.", "p": ["Apoie as costas e os ombros no encosto, pés na largura dos ombros.", "Destrave e desça devagar até os joelhos chegarem a uns 90°.", "Empurre pelos calcanhares até quase esticar as pernas."], "c": "Não deixe o quadril descolar do encosto. Comece com carga leve.", "img": "hack-squat"}, "afundo": {"n": "Afundo (passada) com halteres", "m": "Quadríceps, glúteos e posterior da coxa", "d": "Dê um passo à frente e desça até os dois joelhos formarem uns 90°. Alterne as pernas.", "p": ["Em pé, com um halter em cada mão ao lado do corpo.", "Dê um passo à frente e desça até os dois joelhos formarem uns 90°.", "Empurre com a perna da frente para voltar. Alterne os lados."], "c": "Mantenha o tronco ereto e o joelho da frente alinhado com o pé. Se perder o equilíbrio, segure numa barra.", "img": "afundo"}, "ext-cane": {"n": "Extensão com caneleira", "m": "Quadríceps", "d": "Sentado num banco, com caneleira nos tornozelos. Estenda uma perna de cada vez.", "p": ["Sente num banco com as costas retas e a caneleira nos tornozelos.", "Estenda uma perna até quase esticar e segure 1 segundo.", "Desça devagar. Troque de perna ao terminar as repetições."], "c": "Não balance o corpo nem use impulso.", "img": "ext-cane"}, "stepup": {"n": "Subida no banco (step-up)", "m": "Quadríceps e glúteos", "d": "Suba num banco baixo empurrando com a perna da frente. Alterne os lados.", "p": ["De frente para um banco baixo, apoie um pé inteiro nele.", "Suba empurrando com a perna de cima, sem se impulsionar com a de baixo.", "Desça devagar e repita. Alterne as pernas."], "c": "Comece com banco baixo e sem peso. Use apoio se o equilíbrio estiver incerto.", "img": "stepup"}, "flex-sent": {"n": "Cadeira flexora (sentada)", "m": "Posterior da coxa", "d": "Mesmo movimento da mesa, só que sentado. Costas coladas no encosto.", "p": ["Ajuste o encosto e o apoio das pernas logo acima dos calcanhares.", "Puxe as pernas para baixo e para trás, dobrando os joelhos.", "Volte devagar, sem soltar o peso."], "c": "Não tire o quadril do assento para ganhar impulso.", "img": "flexora"}, "stiff": {"n": "Stiff com halteres", "m": "Posterior da coxa e glúteos", "d": "Joelhos levemente dobrados, desça os halteres rente às pernas jogando o quadril para trás.", "p": ["Em pé, com os halteres na frente das coxas e joelhos levemente dobrados.", "Jogue o quadril para trás e desça os halteres rente às pernas, com a coluna reta.", "Suba empurrando o quadril para a frente."], "c": "Nunca arredonde as costas. Desça só até sentir alongar atrás da coxa.", "img": "stiff"}, "flex-pe": {"n": "Flexora em pé", "m": "Posterior da coxa", "d": "Em máquina ou polia, uma perna de cada vez, sem balançar o corpo.", "p": ["Apoie as mãos e fique de pé com o apoio logo acima do calcanhar.", "Dobre o joelho levando o calcanhar em direção ao bumbum.", "Volte devagar, sem balançar o corpo."], "c": "Mantenha o quadril parado e o tronco firme.", "img": "flex-pe"}, "pant-sent": {"n": "Panturrilha sentada", "m": "Panturrilhas (parte profunda)", "d": "Joelhos dobrados, trabalha outra parte da panturrilha.", "p": ["Sente com a ponta dos pés na plataforma e o apoio sobre as coxas.", "Desça os calcanhares até sentir alongar.", "Suba o máximo que conseguir e segure 1 segundo."], "c": "Evite quicar no final da descida.", "img": "panturrilha"}, "pant-lp": {"n": "Panturrilha no leg press", "m": "Panturrilhas", "d": "Só a ponta dos pés na plataforma, empurrando como se pisasse no acelerador.", "p": ["Sente no leg press e apoie só a ponta dos pés na parte baixa da plataforma.", "Estenda as pernas, mantendo os joelhos quase retos, sem travar.", "Empurre com a ponta dos pés e volte alongando devagar."], "c": "Não trave os joelhos e use carga leve a moderada.", "img": "pant-lp"}, "pant-uni": {"n": "Panturrilha unilateral no degrau", "m": "Panturrilhas", "d": "Uma perna de cada vez, com um halter na mão do mesmo lado e a outra mão apoiada na parede.", "p": ["Apoie a ponta de um pé no degrau, com a outra mão na parede.", "Desça o calcanhar até alongar.", "Suba o máximo que conseguir e segure 1 segundo. Troque de perna."], "c": "Use a parede só para equilíbrio, sem se apoiar demais.", "img": "pant-uni"}, "sup-maq": {"n": "Supino reto na máquina", "m": "Peito, ombros e tríceps", "d": "Mais estável e seguro, bom para quem treina sem parceiro.", "p": ["Ajuste o banco para as pegadas ficarem na altura do peito.", "Costas coladas no encosto, empurre à frente até quase esticar os braços.", "Volte devagar, alongando o peito."], "c": "Não levante os ombros em direção às orelhas.", "img": "supino-maquina"}, "flexao": {"n": "Flexão de braço", "m": "Peito, ombros e tríceps", "d": "No chão ou com as mãos num banco, que é mais fácil. Corpo em linha reta.", "p": ["Mãos um pouco mais largas que os ombros, corpo em linha reta da cabeça aos pés.", "Desça dobrando os cotovelos até o peito chegar perto do chão ou do banco.", "Empurre de volta sem deixar o quadril cair."], "c": "Se o quadril cair ou a lombar arquear, apoie as mãos num banco.", "img": "flexao"}, "voador": {"n": "Voador (peck deck)", "m": "Peito", "d": "Isola o peito. Cotovelos levemente dobrados, junte as mãos à frente.", "p": ["Costas coladas no encosto, braços nas almofadas ou alças na altura do peito.", "Junte as mãos à frente do peito, com os cotovelos levemente dobrados.", "Abra devagar até sentir o peito alongar."], "c": "Não abra além do que é confortável para o ombro.", "img": "crucifixo"}, "inc-halt": {"n": "Supino inclinado com halteres", "m": "Parte de cima do peito e ombros", "d": "Banco inclinado a uns 30°. Mesma pegada do supino com halteres.", "p": ["Ajuste o banco a uns 30° e deite com os halteres na altura do peito.", "Empurre para cima até quase esticar os braços.", "Desça devagar até a altura do peito."], "c": "Não incline mais que uns 30°, para não sobrecarregar o ombro.", "img": "inc-halt"}, "crossover": {"n": "Crossover na polia", "m": "Peito", "d": "Puxe os cabos de cima para baixo e à frente, com os cotovelos levemente dobrados.", "p": ["Em pé entre as polias altas, um passo à frente, cotovelos levemente dobrados.", "Puxe os cabos para baixo e à frente até as mãos se encontrarem.", "Volte devagar, sentindo o peito alongar."], "c": "Não balance o corpo. Use carga leve.", "img": "crossover"}, "des-maq": {"n": "Desenvolvimento na máquina", "m": "Ombros e tríceps", "d": "Movimento guiado, mais fácil de controlar.", "p": ["Ajuste o assento para as pegadas ficarem na altura dos ombros.", "Empurre para cima até quase esticar os braços.", "Desça devagar até a altura das orelhas."], "c": "Costas coladas no encosto, sem arquear a lombar.", "img": "desenv-ombros"}, "des-smith": {"n": "Desenvolvimento no Smith", "m": "Ombros e tríceps", "d": "Sentado num banco, com a barra guiada.", "p": ["Sente num banco com encosto, com a barra na altura do queixo.", "Empurre a barra para cima até quase esticar os braços.", "Desça devagar até a altura do queixo."], "c": "A barra deve descer pela frente do rosto, nunca por trás da cabeça.", "img": "des-smith"}, "arnold": {"n": "Arnold press", "m": "Ombros", "d": "Com halteres, girando as palmas durante a subida. Use cargas leves.", "p": ["Sentado, halteres na frente do peito com as palmas voltadas para você.", "Empurre para cima girando as palmas para a frente.", "Desça girando de volta até a posição inicial."], "c": "Use carga leve e faça o giro devagar.", "img": "arnold"}, "lat-polia": {"n": "Elevação lateral na polia", "m": "Ombros (parte lateral)", "d": "A polia mantém a tensão durante todo o movimento.", "p": ["Em pé, de lado para a polia baixa, segure a alça com a mão mais distante.", "Suba o braço para o lado até a altura do ombro.", "Desça devagar, sem balançar o corpo."], "c": "Carga leve e cotovelo levemente dobrado.", "img": "lat-polia"}, "lat-maq": {"n": "Elevação lateral na máquina", "m": "Ombros (parte lateral)", "d": "Movimento guiado, ótima para controlar.", "p": ["Sente com os cotovelos sob as almofadas e as costas apoiadas.", "Suba os braços até a altura dos ombros.", "Desça devagar, sem deixar o peso bater."], "c": "Não suba acima da linha dos ombros.", "img": "lat-maq"}, "lat-sent": {"n": "Elevação lateral sentado", "m": "Ombros (parte lateral)", "d": "Sentado num banco, para evitar o balanço do corpo.", "p": ["Sentado com as costas retas e um halter em cada mão.", "Suba os braços para os lados até a altura dos ombros.", "Desça devagar, sem balançar."], "c": "Carga leve, para não usar o corpo no movimento.", "img": "lat-sent"}, "tri-barra": {"n": "Tríceps na polia com barra", "m": "Tríceps", "d": "Mesma pegada, com barra reta ou V.", "p": ["Em pé, de frente para a polia alta, segure a barra com os cotovelos colados ao corpo.", "Estenda os braços para baixo.", "Volte devagar até o antebraço formar 90°."], "c": "Só o antebraço se mexe. Não suba os ombros.", "img": "tri-barra"}, "tri-testa": {"n": "Tríceps testa com halteres", "m": "Tríceps", "d": "Deitado, desça os halteres em direção à testa dobrando só o cotovelo.", "p": ["Deitado no banco, halteres acima do peito com os braços esticados.", "Dobre só os cotovelos, descendo os halteres até perto da testa.", "Estenda de volta sem abrir os cotovelos."], "c": "Mantenha os cotovelos apontando para o teto. Carga leve.", "img": "tri-testa"}, "mergulho": {"n": "Mergulho no banco", "m": "Tríceps e ombros", "d": "Mãos no banco atrás de você, desça dobrando os cotovelos. Com os joelhos dobrados fica mais fácil.", "p": ["Mãos no banco atrás de você, quadril perto do banco e joelhos dobrados.", "Desça dobrando os cotovelos a uns 90°.", "Empurre de volta até esticar quase todo o braço."], "c": "Se o ombro incomodar, troque por tríceps na polia.", "img": "mergulho"}, "pux-tri": {"n": "Puxada com triângulo", "m": "Costas e bíceps", "d": "Pegada neutra (palmas frente a frente). Mais confortável para o ombro.", "p": ["Segure o triângulo e ajuste o apoio das coxas.", "Puxe até o peito, levando os cotovelos para baixo e para trás.", "Volte devagar, sem dar tranco."], "c": "Não jogue o tronco para trás.", "img": "puxada-frontal"}, "barra-ass": {"n": "Barra fixa assistida", "m": "Costas e bíceps", "d": "Na máquina com apoio. Ajuste o contrapeso para conseguir 8 a 10 repetições.", "p": ["Ajuste o contrapeso e apoie joelhos ou pés na plataforma.", "Segure a barra um pouco mais larga que os ombros.", "Puxe até o queixo passar da barra e desça devagar."], "c": "Se não conseguir 8 repetições, aumente a assistência.", "img": "barra-ass"}, "pullover": {"n": "Pullover na polia", "m": "Costas", "d": "Braços quase estendidos, puxe a barra para baixo em arco, trabalhando as costas.", "p": ["Em pé, de frente para a polia alta, com os braços quase estendidos.", "Puxe a barra para baixo em arco até as coxas.", "Volte devagar, sentindo as costas alongarem."], "c": "Mantenha os cotovelos quase retos e o tronco firme.", "img": "pullover"}, "rem-curv": {"n": "Remada curvada com halteres", "m": "Costas e bíceps", "d": "Com o peito apoiado num banco inclinado, um halter em cada mão.", "p": ["Apoie o peito num banco inclinado, halteres com os braços esticados.", "Puxe os cotovelos para trás, juntando as escápulas.", "Desça devagar até esticar os braços."], "c": "Mantenha o pescoço alinhado, sem levantar a cabeça.", "img": "rem-curv"}, "rem-serr": {"n": "Remada unilateral (serrote)", "m": "Costas e bíceps", "d": "Um joelho e uma mão no banco, remando com um halter de cada vez.", "p": ["Apoie um joelho e a mão do mesmo lado no banco, com a coluna reta.", "Puxe o halter até a lateral do tronco.", "Desça devagar e troque de lado ao final."], "c": "Não gire o tronco para ajudar a puxar.", "img": "rem-serr"}, "rem-maq": {"n": "Remada na máquina", "m": "Costas", "d": "Peito apoiado, movimento guiado.", "p": ["Ajuste o assento e apoie o peito.", "Puxe levando os cotovelos para trás e junte as escápulas.", "Volte devagar até alongar."], "c": "Não levante os ombros em direção às orelhas.", "img": "remada-sentada"}, "rem-polia": {"n": "Remada baixa na polia", "m": "Meio das costas", "d": "Sentado, com triângulo. Mesmo trabalho de costas.", "p": ["Sente com os pés na plataforma e os joelhos levemente dobrados.", "Puxe o triângulo até o abdômen, juntando as escápulas.", "Volte devagar, sem arredondar as costas."], "c": "Não balance o tronco para a frente e para trás.", "img": "remada-sentada"}, "pux-polia": {"n": "Puxada na polia", "m": "Costas e bíceps", "d": "Se a máquina estiver ocupada, a puxada frontal também trabalha as costas.", "p": ["Segure a barra mais larga que os ombros.", "Puxe a barra até o queixo, com os cotovelos para baixo e para trás.", "Volte devagar."], "c": "Não jogue o tronco para trás.", "img": "puxada-frontal"}, "rosca-mart": {"n": "Rosca martelo com halteres", "m": "Bíceps e antebraço", "d": "Palmas frente a frente. Trabalha também o antebraço.", "p": ["Em pé, halteres ao lado do corpo com as palmas frente a frente.", "Suba os halteres sem girar os pulsos, com os cotovelos colados.", "Desça devagar."], "c": "Não balance o corpo.", "img": "rosca-martelo"}, "rosca-polia": {"n": "Rosca na polia baixa", "m": "Bíceps", "d": "A polia mantém a tensão no braço o tempo todo.", "p": ["Em pé, de frente para a polia baixa, segure a barra com as palmas para cima.", "Suba até o peito com os cotovelos colados ao corpo.", "Desça devagar sem soltar a tensão."], "c": "Não use o corpo para dar impulso.", "img": "rosca-polia"}, "rosca-alt": {"n": "Rosca alternada com halteres", "m": "Bíceps", "d": "Um braço de cada vez, girando a palma para cima ao subir.", "p": ["Em pé, halteres ao lado do corpo.", "Suba um halter girando a palma para cima.", "Desça devagar e alterne o braço."], "c": "Mantenha os cotovelos parados junto ao corpo.", "img": "rosca-alt"}, "prancha": {"n": "Prancha", "m": "Abdômen e core", "d": "Apoie antebraços e pontas dos pés, corpo em linha reta. Comece com 20 a 30 segundos.", "p": ["Apoie os antebraços no chão, cotovelos sob os ombros.", "Eleve o corpo em linha reta, contraindo o abdômen e os glúteos.", "Segure o tempo indicado, respirando normalmente."], "c": "Não deixe o quadril cair nem subir demais. Pare se a lombar incomodar.", "r": "3 x 20 a 30 s", "img": "prancha"}, "abd-maq": {"n": "Abdominal na máquina", "m": "Abdômen", "d": "Movimento guiado, com carga leve.", "p": ["Ajuste o assento e segure as alças.", "Contraia o abdômen, trazendo o tronco para a frente.", "Volte devagar sem relaxar totalmente."], "c": "Use o abdômen, não os braços.", "img": "abdominal"}, "elev-joelhos": {"n": "Elevação de joelhos deitado", "m": "Abdômen inferior", "d": "Deitado, leve os joelhos em direção ao peito sem tirar a lombar do chão.", "p": ["Deitado de costas, mãos ao lado do corpo e pernas dobradas.", "Leve os joelhos em direção ao peito, soltando o ar.", "Volte devagar, sem apoiar os pés no chão."], "c": "Mantenha a lombar colada no chão."}};
+const FOTOS = {"leg-press": "https://images.tcdn.com.br/img/img_prod/645555/noticia_8541999256875a7f858d1d.jpg", "extensora": "https://img.irroba.com.br/fit-in/1000x1000/filters:format(webp):fill(fff):quality(80)/natuoaeu/catalog/produtos-2025/academia/equipamentos-de-musculacao/sku-73-cadeira-extensora-sentada-maquina-80kg-consport/cadeira-extensora-sentada-m-quina-80kg-natrus-2-0.jpg", "mesa-flexora": "https://cdn.awsli.com.br/329/329912/produto/325006792/66f165_18306125ed344f2babca7725dcfef16e-mv2-photoroom-6i6rfavs2r.png", "flexora": "https://img.irroba.com.br/fit-in/1000x1000/filters:format(webp):fill(fff):quality(80)/natuoaeu/catalog/produtos-2025/linha-f/cadeira-flexora-linha-cs-f23.jpg", "hack-squat": "https://totalhealth.com.br/uploads/pagina/elemento/campo/2024/01/euY5JuVlRtfhpso2/639rxs-1.jpg", "panturrilha": "https://www.xfitnessequipamentos.com.br/wp-content/uploads/2021/05/panturrilha-sentada-xtreme.jpg", "supino-maquina": "https://cdn.awsli.com.br/2500x2500/1963/1963758/produto/157384428/5b9904b36e.jpg", "crucifixo": "https://www.aheadsports.com.br/upload/produto/imagem/72fab59815194e6936cb780e6ec5597f.webp", "desenv-ombros": "https://images.tcdn.com.br/img/img_prod/450774/maquina_de_desenvolvimento_de_ombros_articulado_ultrawod_1431_variacao_2809_1_50b31c8c94b67fa134266b23c5b76a74.png", "triceps-polia": "https://blog.ciaathletica.com.br/wp-content/uploads/2023/07/Cia-Athletica-triceps-corda-mulher-exercicio-braco-Autores-GS2-Marketing-Divulgacao.jpg", "puxada-frontal": "https://images.tcdn.com.br/img/img_prod/450774/aparelho_puxada_alta_e_baixa_conjugada_para_musculacao_ultrawod_1222_1_93ef9973b35a20186c9b2dc527fc2222.jpg", "remada-sentada": "https://img.irroba.com.br/filters:format(webp):fill(fff):quality(80)/natuoaeu/catalog/produtos-2025/academia/equipamentos-de-musculacao/linha-pl/cst-pl08/pl08.jpg", "rosca-martelo": "https://totalpass.com/wp-content/uploads/2025/01/rosca-martelo.jpg", "rosca-polia": "https://s3.amazonaws.com/prod.skimble/assets/1905257/image_iphone.jpg", "abdominal": "https://www.kikos.com.br/media/catalog/product/cache/041e82462066eef1ae3402cf9c4986f8/i/m/img_site_0010_tts51_-_abdominal_-_linha_titanium_-_kikos_pro_-_sku_i000235_1_1.jpg", "smith": "https://totalpass.com/wp-content/uploads/2024/10/agachamento-smith.jpg", "pant": "https://m.media-amazon.com/images/I/71weB4s1EaL._AC_UF1000,1000_QL80_.jpg", "sup": "https://images.tcdn.com.br/img/img_prod/645555/noticia_14467158306875aace9bfd1.jpg", "inc": "https://static1.minhavida.com.br/articles/1d/37/f2/d3/homem-fazendo-supino-articulado-orig-1.jpg", "des": "https://pratiquefitness.com.br/blog/wp-content/uploads/2023/11/Como-fazer-desenvolvimento-com-halteres-do-jeito-correto-2.jpg", "lat": "https://totalpass.com/wp-content/uploads/2024/08/elevacao-lateral-1.jpg", "ros": "https://totalpass.com/wp-content/uploads/2024/04/rosca-direta.jpg", "abd": "https://totalpass.com/wp-content/uploads/2025/06/abdominal-supra-solo.jpg", "goblet": "https://images.tcdn.com.br/img/img_prod/645555/noticia_11824790846ab00e33ad921.jpg", "afundo": "https://blog.ciaathletica.com.br/wp-content/uploads/2026/03/afundo-com-halteres-img-1-1024x640.jpg", "ext-cane": "https://blog.ciaathletica.com.br/wp-content/uploads/2024/11/Cia-Athletica-cadeira-extensora-mulher-sentada-equipamento-academia-exercicio-pernas-Autores-GS2-Marketing-Divulgacao.jpg", "stepup": "https://s3assets.skimble.com/assets/1785461/skimble-workout-trainer-exercise-dumbbell-step-ups-4_iphone.jpg", "stiff": "https://s.zst.com.br/cms-assets/2024/07/stiff-como-fazer.webp", "flex-pe": "https://http2.mlstatic.com/D_NQ_NP_764236-MLB74641391978_022024-O-flexora-em-pe-unilateral-articulado-academia-e-musculacao.webp", "pant-lp": "https://blog.ciaathletica.com.br/wp-content/uploads/2026/02/exercicios-para-panturrilha-3-1024x684.jpg", "pant-uni": "https://conteudo.imguol.com.br/c/entretenimento/28/2020/01/06/elevacao-de-panturrilha-1578314739539_v2_3x4.jpg", "flexao": "https://pratiquefitness.com.br/blog/wp-content/uploads/2023/07/Quais-os-tipos-de-flexao-de-braco-para-variar-o-treino-2.jpg", "inc-halt": "https://blog.ciaathletica.com.br/wp-content/uploads/2024/08/Cia-Athetica-Supino-inclinado-com-halteres-mulher-japonesa-deitada-banco-academia-Autores-GS2-Marketin-Divulgacao-Leo-Freitas-1024x682.jpg", "crossover": "https://blog.gsuplementos.com.br/wp-content/uploads/2022/07/cross.jpg", "des-smith": "https://images.tcdn.com.br/img/img_prod/645555/noticia_1542337926ab15106ab91a.jpg", "arnold": "https://s3assets.skimble.com/assets/526475/image_iphone.jpg", "lat-maq": "https://cdn.awsli.com.br/800x800/363/363752/produto/226320742/1-o3fj3yov29.png", "lat-sent": "https://img.drogaraia.com.br/uploads/2022/05/elevacao-lateral.jpg", "tri-barra": "https://totalpass.com/wp-content/uploads/2024/06/triceps-na-polia-homem-oriental.jpg", "tri-testa": "https://images.tcdn.com.br/img/img_prod/645555/noticia_5038928576ab147ceb2643.jpg", "mergulho": "https://totalpass.com/wp-content/uploads/2024/11/triceps-na-academia.jpg", "lat-polia": "https://www.feitodeiridium.com.br/wp-content/uploads/2016/04/eleva%C3%A7%C3%A3o-lateral-alternada-com-polia-baixa-1200x818.jpg", "barra-ass": "https://www.mundoboaforma.com.br/wp-content/uploads/2023/03/barra-fixa-assistida-no-graviton.jpg", "pullover": "https://totalpass.com/wp-content/uploads/2025/08/pull-down.jpg", "rem-curv": "https://blog.ciaathletica.com.br/wp-content/uploads/2026/02/remada-com-halteres-capa.jpg", "rem-serr": "https://totalpass.com/wp-content/uploads/2025/01/remada-serrote-movimento-1.jpg", "rosca-alt": "https://p2.trrsf.com/image/fget/cf/500/0/images.terra.com/2024/04/01/1853915857-istock-1404354190.jpg", "prancha": "https://totalpass.com/wp-content/uploads/2024/01/prancha-abdominal.jpg"};
+const IMG = {"leg": "leg-press", "ext": "extensora", "flex": "mesa-flexora", "tri": "triceps-polia", "pux": "puxada-frontal", "rem": "remada-sentada", "rmq": "remada-sentada", "smith": "smith", "pant": "pant", "sup": "sup", "inc": "inc", "des": "des", "lat": "lat", "ros": "ros", "abd": "abd"};
+const PERFIS = {
+ w:{nome:'Willian',plano:{id:"ciclo-1",dias:30},aquec:'A caminhada até a academia já aquece. Em cada exercício, faça a 1ª série com carga leve (metade da que pretende usar) para pegar o movimento. Descanso entre séries: 60 a 90 segundos.',treinos:{
+ A:{t:'A',sub:'Pernas e glúteos',txt:'<b>Treino A:</b> pernas são o maior grupo muscular, então gastam mais energia e ajudam bastante no emagrecimento.',ids:['leg','ext','flex','smith','pant'],s:'Pernas'},
+ B:{t:'B',sub:'Empurrar',txt:'<b>Treino B:</b> peito, ombros e tríceps. Mantenha descanso curto para o batimento ficar alto.',ids:['sup','inc','des','lat','tri'],s:'Empurrar'},
+ C:{t:'C',sub:'Puxar e abdômen',txt:'<b>Treino C:</b> costas, bíceps e abdômen. Costas fortes melhoram postura e protegem a coluna.',ids:['pux','rem','rmq','ros','abd'],s:'Puxar'}
+}},
+ k:{nome:'Karina',plano:{id:"k-ciclo-1",dias:30},aquec:'Em cada exercício, faça a 1ª série com carga leve (metade da que pretende usar) para pegar o movimento. Descanso entre séries: 60 a 90 segundos.',treinos:{
+ A:{t:'A',sub:'Pernas e glúteos',txt:'<b>Treino A:</b> pernas e glúteos. Treino de teste da Karina: o treino definitivo entra depois.',ids:['leg','smith','flex','ext','pant'],s:'Pernas'},
+ B:{t:'B',sub:'Costas e ombros',txt:'<b>Treino B:</b> costas, ombros e tríceps. Treino de teste da Karina: o treino definitivo entra depois.',ids:['pux','rem','des','lat','tri'],s:'Costas'},
+ C:{t:'C',sub:'Peito, bíceps e abdômen',txt:'<b>Treino C:</b> peito, bíceps e abdômen. Treino de teste da Karina: o treino definitivo entra depois.',ids:['sup','inc','rmq','ros','abd'],s:'Peito'}
+ }}
+};
+let PERFIL='w',PLANO=PERFIS.w.plano,TREINOS=PERFIS.w.treinos,AQUEC=PERFIS.w.aquec;
+
+/* ---------- ARMAZENAMENTO ---------- */
+const KEY='wikagym_v1';
+function novoStore(p){return {cargas:{},feitos:{},hist:[],fotos:{},corpo:{},trocas:{d:'',m:{}},ciclo:{id:PERFIS[p].plano.id,dias:{}}};}
+let DB={perfil:'w',perfis:{}};
+let store=novoStore('w');
+let storageOK=true;
+function normaliza(){
+  if(!DB||typeof DB!=='object')DB={perfil:'w',perfis:{}};
+  if(!DB.perfis||typeof DB.perfis!=='object')DB.perfis={};
+  Object.keys(PERFIS).forEach(p=>{
+    const x=DB.perfis[p]=Object.assign(novoStore(p),DB.perfis[p]||{});
+    if(!x.ciclo||x.ciclo.id!==PERFIS[p].plano.id)x.ciclo={id:PERFIS[p].plano.id,dias:{}};
+    if(!x.trocas||!x.trocas.m)x.trocas={d:'',m:{}};
+  });
+  if(!PERFIS[DB.perfil])DB.perfil='w';
+  store=DB.perfis[DB.perfil];
+}
+function ler(){try{const x=localStorage.getItem(KEY);if(x)DB=JSON.parse(x);}catch(e){storageOK=false;}normaliza();}
+function gravar(){try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){storageOK=false;avisar();}}
+function avisar(){document.getElementById('warn').style.display=storageOK?'none':'block';}
+function hojeISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmt(iso){const p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+
+/* ---------- VISAO DO EXERCICIO (original ou troca de hoje) ---------- */
+function trocaHoje(id){return store.trocas.d===hojeISO()?store.trocas.m[id]:null;}
+function view(id){
+  const o=EX[id],f=INFO[id],tr=trocaHoje(id);
+  if(tr&&ALT[tr]){const a=ALT[tr];return {id,k:tr,n:a.n,mus:a.m,r:a.r||o.r,d:a.d,p:a.p,c:a.c,img:a.img||null,troca:true};}
+  return {id,k:id,n:o.n,mus:f.m,r:o.r,d:o.d,p:f.p,c:f.c,img:IMG[id]||null,troca:false};
+}
+
+/* ---------- PARTES DO CARTAO ---------- */
+const abertos={};
+let fotoAlvo=null;
+function infoHTML(v){
+  return '<details class="mi" data-o="i'+v.k+'"'+(abertos['i'+v.k]?' open':'')+'><summary>Como fazer</summary><div class="in">'+
+    '<p>'+v.d+'</p>'+
+    '<div><b>Músculos</b><p>'+v.mus+'</p></div>'+
+    '<div><b>Passo a passo</b><ol>'+v.p.map(x=>'<li>'+x+'</li>').join('')+'</ol></div>'+
+    '<div class="alerta"><b>Cuidado</b><p>'+v.c+'</p></div>'+
+    '<p>Solte o ar no esforço e inspire ao voltar. Pare se sentir dor aguda.</p>'+
+    '<div class="links"><a target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query='+encodeURIComponent(v.n+' execução correta')+'">Ver vídeo</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q='+encodeURIComponent(v.n+' aparelho academia')+'">Mais fotos</a></div></div></details>';
+}
+function altBtn(id){
+  const o=!!abertos['a'+id];
+  return '<button class="alt-btn'+(o?' open':'')+'" data-alt="'+id+'" aria-label="Trocar por exercício alternativo" aria-expanded="'+o+'">⇄</button>';
+}
+function altHTML(id){
+  const o=EX[id],f=INFO[id],cur=trocaHoje(id);
+  const itens=[];
+  if(cur)itens.push({k:'',n:o.n,d:'Voltar ao exercício original do treino.'});
+  f.a.forEach(k=>{if(k!==cur&&ALT[k])itens.push({k:k,n:ALT[k].n,d:ALT[k].d});});
+  return '<div class="altbox" id="alt_'+id+'"'+(abertos['a'+id]?'':' hidden')+'><h4>Trocar só por hoje:</h4>'+
+    itens.map(x=>'<div class="it"><b>'+x.n+'</b><span>'+x.d+'</span><div class="r2"><button class="usar" data-usar="'+id+'|'+x.k+'">'+(x.k?'Usar este exercício':'Voltar ao original')+'</button><a target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query='+encodeURIComponent(x.n+' execução correta')+'">Ver vídeo</a></div></div>').join('')+'</div>';
+}
+const PH='<span>Sem foto</span>';
+function fonteFoto(v){const user=store.fotos[v.k];return {user:user,src:user||(v.img&&FOTOS[v.img])||''};}
+function thumbHTML(v){
+  const f=fonteFoto(v);
+  if(!f.src)return '<button type="button" class="th sem" data-ver="'+v.id+'" aria-label="Foto do aparelho">'+PH+'</button>';
+  return '<button type="button" class="th" data-ver="'+v.id+'" aria-label="Ampliar foto"><img data-fb="1" alt="" '+(f.user?'':'referrerpolicy="no-referrer" ')+'loading="lazy" src="'+esc(f.src)+'"></button>';
+}
+function abreViewer(id){
+  const v=view(id),f=fonteFoto(v),el=$('viewer');
+  el.innerHTML='<div class="vimg">'+(f.src?'<img data-fv="1" alt="'+esc(v.n)+'" '+(f.user?'':'referrerpolicy="no-referrer" ')+'src="'+esc(f.src)+'">':'Sem foto para este exercício.')+'</div>'+
+    '<h3>'+v.n+'</h3><div class="vbtns"><button class="btn" type="button" data-vfoto="'+v.k+'">'+(f.user?'Trocar minha foto':'Usar minha foto')+'</button>'+
+    (f.user?'<button class="btn" type="button" data-vrf="'+v.k+'">Remover minha foto</button>':'')+
+    '<button class="btn ok" type="button" data-vfecha="1">Fechar</button></div>';
+  el.hidden=false;document.body.style.overflow='hidden';
+}
+function fechaViewer(){$('viewer').hidden=true;$('viewer').innerHTML='';document.body.style.overflow='';}
+function reduzFoto(file,cb){
+  const r=new FileReader();
+  r.onload=()=>{
+    const im=new Image();
+    im.onload=()=>{
+      const M=720,k=Math.min(1,M/Math.max(im.width,im.height));
+      const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+      const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);
+      cb(c.toDataURL('image/jpeg',0.75));
+    };
+    im.onerror=()=>alert('Não consegui ler essa imagem.');
+    im.src=r.result;
+  };
+  r.readAsDataURL(file);
+}
+function salvaFoto(k,dataUrl){
+  const ant=store.fotos[k];
+  store.fotos[k]=dataUrl;
+  try{localStorage.setItem(KEY,JSON.stringify(DB));}
+  catch(e){if(ant)store.fotos[k]=ant;else delete store.fotos[k];alert('Sem espaço para guardar a foto. Remova outra foto e tente de novo.');return;}
+  fechaViewer();render();
+}
+
+/* ---------- SEMANA SUGERIDA ---------- */
+const SEMANA=[['Seg','A'],['Ter','B'],['Qua','C'],['Qui','A'],['Sex','B'],['Sáb','C'],['Dom','']];
+function semanaHTML(){
+  const hj=new Date(),dow=(hj.getDay()+6)%7;
+  let h='<div class="sem7">';
+  SEMANA.forEach((s,i)=>{
+    const d=new Date(hj.getFullYear(),hj.getMonth(),hj.getDate()-dow+i);
+    const iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const fei=!!store.ciclo.dias[iso];
+    const cls='sd'+(i===dow?' hoje':'')+(s[1]&&s[1]===atual?' sel':'')+(fei?' fei':'')+(!s[1]?' off':'');
+    h+='<button type="button" class="'+cls+'"'+(s[1]?' data-sem="'+s[1]+'"':' disabled')+'><small>'+s[0]+'</small><b>'+(s[1]||'·')+'</b><i>'+(fei?'✓':(i===5?'opc.':(s[1]?'':'descanso')))+'</i></button>';
+  });
+  return h+'</div><div class="semleg">Sugestão da semana. Toque num dia para abrir o treino.</div>';
+}
+
+/* ---------- CICLO ---------- */
+function cicloCount(){return Object.keys(store.ciclo.dias).length;}
+function cicloHTML(){
+  const n=cicloCount(),tot=PLANO.dias,falta=Math.max(0,tot-n);
+  let h='<div class="ciclo'+(n>=tot?' fim':'')+'"><div class="crow"><b>Ciclo do treino</b><span>'+Math.min(n,tot)+' de '+tot+' dias</span></div><div class="cbar"><i style="width:'+Math.min(100,n/tot*100)+'%"></i></div>';
+  if(n>=tot)h+='<p><b>Ciclo completo!</b> Você concluiu os '+tot+' dias. Hora de trocar o treino: peça ao Claude para trocar o treino do WikaGym ('+PERFIS[PERFIL].nome+').</p>';
+  else h+='<small>Faltam '+falta+(falta===1?' dia':' dias')+' para trocar o treino.</small>';
+  return h+'</div>';
+}
+function fimHTML(){
+  const ok=!!store.ciclo.dias[hojeISO()];
+  return '<button class="fin'+(ok?' ok':'')+'" id="fin">'+(ok?'Dia finalizado ✓ (toque para desfazer)':'Dia finalizado')+'</button><div class="finh">Marque os exercícios feitos e finalize o dia. Cada dia finalizado conta 1 no ciclo.</div>';
+}
+function finalizaDia(){
+  const h=hojeISO();
+  if(store.ciclo.dias[h]){
+    if(confirm('Desfazer a finalização de hoje?')){delete store.ciclo.dias[h];gravar();render();}
+    return;
+  }
+  const T=TREINOS[atual],fe=store.feitos[h]||{},n=T.ids.filter(id=>fe[id]).length;
+  if(n<T.ids.length&&!confirm('Você marcou '+n+' de '+T.ids.length+' exercícios. Finalizar o dia mesmo assim?'))return;
+  store.ciclo.dias[h]=atual;gravar();render();
+  if(cicloCount()>=PLANO.dias)setTimeout(()=>alert('Ciclo completo! Você concluiu '+PLANO.dias+' dias de treino. Hora de trocar o treino: peça ao Claude para trocar o treino do WikaGym ('+PERFIS[PERFIL].nome+').'),60);
+}
+
+
+/* ---------- FRASES DO TOPO ---------- */
+const FRASES={
+ treino:["Bora treinar! O ferro não vai levantar sozinho.","A pessoa que você vai ser daqui a 30 dias já agradece.","Hoje é dia de suar a camisa. A de ontem já secou.","Só o primeiro passo cansa: o da porta da academia.","Treino feito é treino que ninguém tira de você.","A academia está a 1 km. O seu objetivo, a 1 treino.","Carga leve ou pesada, o importante é aparecer.","Disciplina é fazer mesmo sem vontade. Bora.","O cansaço passa. A desculpa fica.","Músculo não cresce no sofá.","Um dia de cada vez, uma série de cada vez.","Respira, aperta, solta. Repete.","Foco em terminar o treino, não o dia.","Não precisa ser perfeito, precisa ser feito.","Menos \"amanhã eu começo\", mais \"hoje eu fui\".","Seu eu do futuro está olhando e torcendo por você."],
+ desc:["Domingo é dia de descanso: o músculo cresce enquanto você relaxa.","Hoje o treino é sofá e bom humor. Merecido.","Descansar também faz parte do plano.","Domingo: recarregue as baterias. Segunda tem ferro.","Dia de descanso não é preguiça, é estratégia.","Uma caminhada leve hoje já conta como bônus.","Descansa hoje, que amanhã a barra pesa de novo."],
+ sab:["Sábado é treino opcional, mas quem vai ganha bônus.","Sábado de treino: o resto da galera está dormindo.","Se der vontade, hoje é dia de treino C. Se não, descanso sem culpa."],
+ feito:["Dia finalizado! Pode se sentir orgulhoso.","Missão cumprida. Agora é comer bem e descansar.","Treinou hoje? Então já ganhou o dia.","Mais um dia na conta. O ciclo agradece.","Boa, Will! Amanhã tem mais."],
+ ciclo:["Ciclo completo! Hora de renovar o treino.","Ciclo concluído. Hora de evoluir: peça a troca do treino."]
+};
+let fraseOfs=0;
+function fraseDoDia(){
+  const h=hojeISO(),dow=new Date().getDay();
+  let ctx='treino';
+  if(cicloCount()>=PLANO.dias)ctx='ciclo';
+  else if(store.ciclo.dias[h])ctx='feito';
+  else if(dow===0)ctx='desc';
+  else if(dow===6)ctx='sab';
+  const L=FRASES[ctx].filter(t=>PERFIL==='w'||!/1 km|caminhada até/.test(t)).map(t=>PERFIL==='w'?t:t.replace('Will',PERFIS[PERFIL].nome).replace('orgulhoso','orgulhosa')),p=h.split('-'),dn=Math.floor(Date.UTC(+p[0],+p[1]-1,+p[2])/864e5);
+  return L[(dn+fraseOfs)%L.length];
+}
+
+/* ---------- GRAFICO SIMPLES ---------- */
+function nf(n){return Number(n).toLocaleString('pt-BR',{maximumFractionDigits:1});}
+function tData(d){const p=d.split('-');return Date.UTC(+p[0],+p[1]-1,+p[2]);}
+function dm(d){const p=d.split('-');return p[2]+'/'+p[1];}
+function grafico(pts){
+  if(pts.length<2)return '';
+  const W=320,H=140,L=40,R=12,T=14,B=26;
+  let mn=Math.min(...pts.map(p=>p.v)),mx=Math.max(...pts.map(p=>p.v));
+  if(mn===mx){mn-=1;mx+=1;}
+  const pad=(mx-mn)*0.12;mn-=pad;mx+=pad;
+  const t0=pts[0].t,dt=(pts[pts.length-1].t-t0)||1;
+  const X=t=>L+(W-L-R)*(t-t0)/dt,Y=v=>T+(H-T-B)*(1-(v-mn)/(mx-mn));
+  const li=pts.map(p=>X(p.t).toFixed(1)+','+Y(p.v).toFixed(1)).join(' ');
+  return '<div class="chart"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Gráfico de evolução">'+
+    '<line class="ax" x1="'+L+'" y1="'+T+'" x2="'+L+'" y2="'+(H-B)+'"/><line class="ax" x1="'+L+'" y1="'+(H-B)+'" x2="'+(W-R)+'" y2="'+(H-B)+'"/>'+
+    '<text x="'+(L-4)+'" y="'+(T+4)+'" text-anchor="end">'+nf(mx)+'</text><text x="'+(L-4)+'" y="'+(H-B)+'" text-anchor="end">'+nf(mn)+'</text>'+
+    '<text x="'+L+'" y="'+(H-8)+'" text-anchor="start">'+dm(pts[0].d)+'</text><text x="'+(W-R)+'" y="'+(H-8)+'" text-anchor="end">'+dm(pts[pts.length-1].d)+'</text>'+
+    '<polyline class="ln" points="'+li+'"/>'+pts.map(p=>'<circle cx="'+X(p.t).toFixed(1)+'" cy="'+Y(p.v).toFixed(1)+'" r="3.5"/>').join('')+'</svg></div>';
+}
+
+/* ---------- EVOLUCAO DA CARGA (dentro do exercicio) ---------- */
+function pontosCarga(k){
+  const m={};
+  store.hist.forEach(h=>{if(h.id===k&&h.kg!=null)m[h.d]=h.kg;});
+  return Object.keys(m).sort().map(d=>({d:d,t:tData(d),v:m[d]}));
+}
+function sparkHTML(k){
+  const pts=pontosCarga(k);
+  if(!pts.length)return '<span>Anote a carga para acompanhar sua evolução.</span>';
+  const u=pts[pts.length-1];
+  if(pts.length<2)return '<span>Última: <b>'+nf(u.v)+' kg</b> em '+dm(u.d)+'. Anote em outro dia para ver o gráfico.</span>';
+  const p=pts.slice(-8),a=pts[0],dif=u.v-a.v;
+  let mn=Math.min(...p.map(x=>x.v)),mx=Math.max(...p.map(x=>x.v));if(mn===mx){mn-=1;mx+=1;}
+  const W=96,H=28,m=3,X=i=>m+(W-2*m)*i/(p.length-1),Y=v=>m+(H-2*m)*(1-(v-mn)/(mx-mn));
+  const li=p.map((x,i)=>X(i).toFixed(1)+','+Y(x.v).toFixed(1)).join(' ');
+  const cls=dif>0?'up':dif<0?'dn':'';
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Evolução da carga"><polyline class="ln" points="'+li+'"/><circle cx="'+X(p.length-1).toFixed(1)+'" cy="'+Y(u.v).toFixed(1)+'" r="2.6"/></svg>'+
+    '<span><b>'+nf(u.v)+' kg</b> · <span class="'+cls+'">'+(dif>0?'+':'')+nf(dif)+' kg</span> desde '+dm(a.d)+'</span>';
+}
+function atualizaSpark(k){const el=$('sp_'+k);if(el)el.innerHTML=sparkHTML(k);}
+
+/* ---------- CORPO: PESO E MEDIDAS ---------- */
+const METRICAS=[['peso','Peso','kg'],['cintura','Cintura','cm'],['abdomen','Abdômen','cm'],['braco','Braço','cm'],['coxa','Coxa','cm']];
+let metricaSel='peso';
+function serieCorpo(m){
+  return Object.keys(store.corpo).sort().filter(d=>store.corpo[d][m]!=null).map(d=>({d:d,t:tData(d),v:store.corpo[d][m]}));
+}
+function renderCorpo(){
+  const h=hojeISO(),el=$('corpoView');
+  const M=METRICAS.find(x=>x[0]===metricaSel);
+  const pts=serieCorpo(metricaSel);
+  let html='<div class="info">Pese e meça 1 vez por semana, de manhã, em jejum e no mesmo horário. A balança oscila de um dia para o outro: olhe a tendência, não o número do dia.</div>'+
+    '<div class="cform"><label>Data<input type="date" id="cData" value="'+h+'" max="'+h+'"></label><div class="cgrid">'+
+    METRICAS.map(m=>'<label>'+m[1]+' ('+m[2]+')<input type="number" inputmode="decimal" step="0.1" min="0" data-m="'+m[0]+'"></label>').join('')+
+    '</div><button class="fin" id="cSalvar" type="button">Salvar registro</button></div>'+
+    '<div class="mchips">'+METRICAS.map(m=>'<button type="button" class="mchip'+(m[0]===metricaSel?' on':'')+'" data-ms="'+m[0]+'">'+m[1]+'</button>').join('')+'</div>';
+  if(pts.length===0)html+='<div class="resumo">Ainda sem registros de '+M[1].toLowerCase()+'.</div>';
+  else{
+    const a=pts[0].v,b=pts[pts.length-1].v,dif=b-a;
+    html+='<div class="resumo">'+M[1]+': <b>'+nf(b)+' '+M[2]+'</b> no último registro ('+dm(pts[pts.length-1].d)+')'+(pts.length>1?'<br>Variação desde o primeiro: <b>'+(dif>0?'+':'')+nf(dif)+' '+M[2]+'</b>':'')+'</div>'+
+      (pts.length>1?grafico(pts):'<div class="vazio2">Registre pelo menos 2 vezes para ver o gráfico.</div>');
+  }
+  const datas=Object.keys(store.corpo).sort().reverse();
+  if(datas.length){
+    html+='<div class="sec">Registros</div><div class="resumo">'+datas.map(d=>{
+      const r=store.corpo[d];
+      return '<div class="reg"><div><b>'+fmt(d)+'</b><small>'+METRICAS.filter(m=>r[m[0]]!=null).map(m=>m[1]+' '+nf(r[m[0]])+' '+m[2]).join(' · ')+'</small></div><button type="button" data-del="'+d+'">Apagar</button></div>';
+    }).join('')+'</div>';
+  }
+  el.innerHTML=html;
+  preencheCorpo(h);
+}
+function preencheCorpo(d){
+  const r=store.corpo[d]||{};
+  document.querySelectorAll('#corpoView [data-m]').forEach(i=>{i.value=(r[i.dataset.m]!=null?r[i.dataset.m]:'');});
+}
+function salvaCorpo(){
+  const d=$('cData').value||hojeISO(),r={};
+  document.querySelectorAll('#corpoView [data-m]').forEach(i=>{
+    const v=parseFloat(String(i.value).replace(',','.'));
+    if(!isNaN(v)&&v>0)r[i.dataset.m]=v;
+  });
+  if(!Object.keys(r).length){alert('Preencha pelo menos um valor.');return;}
+  store.corpo[d]=Object.assign({},store.corpo[d]||{},r);
+  gravar();renderCorpo();
+}
+
+/* ---------- TELA ---------- */
+let atual='A';
+const $=id=>document.getElementById(id);
+function abas(){
+  $('tabs').innerHTML='';
+  Object.keys(TREINOS).forEach(k=>{
+    const b=document.createElement('button');
+    b.className='tab'+(k===atual?' on':'');
+    b.textContent=k+' · '+TREINOS[k].s;
+    b.onclick=()=>{atual=k;try{localStorage.setItem('wikagym_aba_'+PERFIL,k);}catch(e){}render();};
+    $('tabs').appendChild(b);
+  });
+}
+function render(){
+  abas();
+  const corpo=atual==='corpo';
+  $('bCorpo').classList.toggle('on',corpo);
+  $('treinoView').hidden=corpo;$('corpoView').hidden=!corpo;
+  $('frase').textContent=fraseDoDia();
+  if(corpo){renderCorpo();return;}
+  const T=TREINOS[atual];
+  $('semana').innerHTML=semanaHTML();
+  $('ciclo').innerHTML=cicloHTML();
+  $('tnome').textContent='Treino '+T.t+' · '+T.sub;
+  const hoje=hojeISO();
+  const feitos=store.feitos[hoje]||{};
+  const box=$('lista');box.innerHTML='';
+  T.ids.forEach((id,i)=>{
+    const v=view(id);
+    const c=store.cargas[v.k]||{};
+    const div=document.createElement('div');
+    div.className='ex'+(feitos[id]?' done':'');
+    div.innerHTML=
+     '<div class="hd"><button class="ck" data-d="'+id+'" type="button" aria-label="Marcar como feito">✓</button>'+thumbHTML(v)+
+       '<div class="tt"><div class="nm">'+v.n+'</div><div class="mus">'+v.mus+'</div><div class="meta"><b>'+v.r+'</b> · 60 a 90s'+(v.troca?' · <span class="tr">troca de hoje</span>':'')+'</div></div>'+altBtn(id)+'</div>'+
+     altHTML(id)+
+     '<div class="ld"><input class="kg" type="number" inputmode="decimal" step="0.5" min="0" placeholder="kg" aria-label="Carga em kg" data-k="'+v.k+'"><input type="text" data-n="'+v.k+'" placeholder="Anotação (ex: banco no 3)" aria-label="Anotação"></div>'+
+     '<div class="sp" id="sp_'+v.k+'">'+sparkHTML(v.k)+'</div>'+
+     infoHTML(v);
+    box.appendChild(div);
+    const ik=div.querySelector('[data-k]'),inn=div.querySelector('[data-n]');
+    ik.value=(c.kg!=null?c.kg:'');inn.value=c.nota||'';
+    ik.onchange=()=>{salvaCarga(v.k,ik.value,inn.value);};
+    inn.onchange=()=>{salvaCarga(v.k,ik.value,inn.value);};
+    div.querySelector('[data-d]').onclick=()=>{
+      salvaCarga(v.k,ik.value,inn.value);
+      const h=hojeISO();store.feitos[h]=store.feitos[h]||{};
+      if(store.feitos[h][id])delete store.feitos[h][id];else store.feitos[h][id]=true;
+      gravar();render();
+    };
+  });
+  const n=T.ids.filter(id=>feitos[id]).length;
+  $('pg').style.width=(n/T.ids.length*100)+'%';$('tcont').textContent=n+' de '+T.ids.length;
+  $('fimdia').innerHTML=fimHTML();
+}
+function salvaCarga(k,kg,nota){
+  const v=kg===''?null:parseFloat(String(kg).replace(',','.'));
+  const ant=store.cargas[k];
+  store.cargas[k]={kg:(v!=null&&!isNaN(v))?v:null,nota:nota||'',data:hojeISO()};
+  if(v!=null&&!isNaN(v)){
+    const h=hojeISO(),e=store.hist.find(x=>x.d===h&&x.id===k);
+    if(e)e.kg=v;else store.hist.push({d:h,id:k,kg:v});
+  }
+  gravar();atualizaSpark(k);
+}
+
+/* ---------- PERFIL (Willian / Karina) ---------- */
+function aplicaPerfil(p){
+  PERFIL=p;DB.perfil=p;store=DB.perfis[p];
+  PLANO=PERFIS[p].plano;TREINOS=PERFIS[p].treinos;AQUEC=PERFIS[p].aquec;
+  document.body.dataset.p=p;
+  document.querySelectorAll('#perfis [data-p]').forEach(b=>{const on=b.dataset.p===p;b.classList.toggle('on',on);b.setAttribute('aria-selected',on);});
+  $('aquec').textContent=AQUEC;
+  Object.keys(abertos).forEach(k=>delete abertos[k]);
+  metricaSel='peso';
+  let a=null;try{a=localStorage.getItem('wikagym_aba_'+p);}catch(e){}
+  atual=(a&&(TREINOS[a]||a==='corpo'))?a:'A';
+}
+$('perfis').addEventListener('click',e=>{
+  const b=e.target.closest('[data-p]');
+  if(!b||b.dataset.p===PERFIL)return;
+  aplicaPerfil(b.dataset.p);gravar();fechaViewer();render();window.scrollTo(0,0);
+});
+
+/* ---------- EVENTOS ---------- */
+$('frase').onclick=()=>{fraseOfs++;$('frase').textContent=fraseDoDia();};
+$('corpoView').addEventListener('click',e=>{
+  if(e.target.closest('#cSalvar')){salvaCorpo();return;}
+  const ms=e.target.closest('[data-ms]');if(ms){metricaSel=ms.dataset.ms;renderCorpo();return;}
+  const del=e.target.closest('[data-del]');
+  if(del&&confirm('Apagar o registro de '+fmt(del.dataset.del)+'?')){delete store.corpo[del.dataset.del];gravar();renderCorpo();}
+});
+$('corpoView').addEventListener('change',e=>{if(e.target.id==='cData')preencheCorpo(e.target.value);});
+$('semana').addEventListener('click',e=>{const b=e.target.closest('[data-sem]');if(b){atual=b.dataset.sem;try{localStorage.setItem('wikagym_aba_'+PERFIL,atual);}catch(x){}render();}});
+$('fimdia').addEventListener('click',e=>{if(e.target.closest('#fin'))finalizaDia();});
+$('arqFoto').addEventListener('change',function(){
+  const f=this.files&&this.files[0];if(!f||!fotoAlvo)return;
+  const alvo=fotoAlvo;reduzFoto(f,d=>salvaFoto(alvo,d));this.value='';
+});
+$('lista').addEventListener('click',e=>{
+  const a=e.target.closest('[data-alt]');
+  if(a){
+    const id=a.dataset.alt,box=$('alt_'+id),abrir=box.hidden;
+    box.hidden=!abrir;a.classList.toggle('open',abrir);a.setAttribute('aria-expanded',abrir);
+    if(abrir)abertos['a'+id]=1;else delete abertos['a'+id];
+    return;
+  }
+  const u=e.target.closest('[data-usar]');
+  if(u){
+    const p=u.dataset.usar.split('|'),id=p[0],k=p[1],h=hojeISO();
+    if(store.trocas.d!==h)store.trocas={d:h,m:{}};
+    if(k)store.trocas.m[id]=k;else delete store.trocas.m[id];
+    delete abertos['a'+id];gravar();render();return;
+  }
+  const vb=e.target.closest('[data-ver]');
+  if(vb){abreViewer(vb.dataset.ver);return;}
+});
+$('viewer').addEventListener('click',e=>{
+  if(e.target.closest('[data-vfecha]')||e.target===$('viewer')){fechaViewer();return;}
+  const fb=e.target.closest('[data-vfoto]');
+  if(fb){fotoAlvo=fb.dataset.vfoto;$('arqFoto').value='';$('arqFoto').click();return;}
+  const rb=e.target.closest('[data-vrf]');
+  if(rb&&confirm('Remover a sua foto deste exercício?')){delete store.fotos[rb.dataset.vrf];gravar();fechaViewer();render();}
+});
+$('lista').addEventListener('toggle',e=>{
+  const d=e.target;
+  if(d.dataset&&d.dataset.o){if(d.open)abertos[d.dataset.o]=1;else delete abertos[d.dataset.o];}
+},true);
+/* foto que falha: volta para o desenho ou para o aviso */
+document.addEventListener('error',e=>{
+  const im=e.target;if(!im||im.tagName!=='IMG'||!(im.dataset.fb||im.dataset.fv))return;
+  const w=im.parentNode;
+  if(im.dataset.fv){w.textContent='Não consegui carregar a foto. Use Minha foto ou Mais fotos.';return;}
+  w.classList.add('sem');w.innerHTML=PH;
+},true);
+
+/* ---------- DESCANSO ---------- */
+let tmr=null;
+$('timer').onclick=()=>{
+  const b=$('timer');
+  if(tmr){clearInterval(tmr);tmr=null;b.textContent='Descanso 60s';return;}
+  let t=60;b.textContent='Descansando '+t+'s (toque p/ parar)';
+  tmr=setInterval(()=>{
+    t--;
+    if(t<=0){clearInterval(tmr);tmr=null;b.textContent='Descanso 60s';try{navigator.vibrate&&navigator.vibrate([300,150,300]);}catch(e){}alert('Descanso acabou. Próxima série!');}
+    else b.textContent='Descansando '+t+'s (toque p/ parar)';
+  },1000);
+};
+
+/* ---------- CONFIGURACOES ---------- */
+$('aquec').textContent=AQUEC;
+$('bCorpo').onclick=()=>{atual='corpo';try{localStorage.setItem('wikagym_aba_'+PERFIL,'corpo');}catch(e){}render();window.scrollTo(0,0);};
+$('bCfg').onclick=()=>{$('cfg').hidden=false;document.body.style.overflow='hidden';};
+$('bFechar').onclick=()=>{$('cfg').hidden=true;document.body.style.overflow='';};
+
+/* ---------- BACKUP ---------- */
+$('bExp').onclick=async()=>{
+  const nome='wikagym-backup-'+hojeISO()+'.json';
+  const blob=new Blob([JSON.stringify({app:'wikagym',v:1,exportado:new Date().toISOString(),dados:DB},null,2)],{type:'application/json'});
+  try{
+    const file=new File([blob],nome,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Backup WikaGym'});return;}
+  }catch(e){if(e&&e.name==='AbortError')return;}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nome;document.body.appendChild(a);a.click();a.remove();
+};
+$('bImp').onclick=()=>$('fImp').click();
+$('fImp').onchange=ev=>{
+  const f=ev.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const o=JSON.parse(r.result);
+      const novo=!!(o&&o.app==='wikagym'&&o.dados&&o.dados.perfis),velho=!!(o&&o.app==='will-gym'&&o.dados);
+      if(!novo&&!velho)throw new Error('arquivo invalido');
+      if(!confirm(novo?'Importar este backup vai substituir os dados de Willian e Karina neste aparelho. Continuar?':'Este é um backup do Will Gym. Importar vai substituir só os dados do perfil Willian. Continuar?'))return;
+      if(novo)DB=o.dados;else DB.perfis.w=o.dados;
+      normaliza();aplicaPerfil(DB.perfil);gravar();render();
+      alert('Backup importado com sucesso.');
+    }catch(e){alert('Esse arquivo não parece ser um backup do WikaGym.');}
+    $('fImp').value='';
+  };
+  r.readAsText(f);
+};
+
+/* ---------- INICIO ---------- */
+ler();aplicaPerfil(DB.perfil);
+const dias=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+const d=new Date();$('hoje').textContent=dias[d.getDay()]+', '+fmt(hojeISO());
+avisar();render();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
+</script>
+</body>
+</html>
