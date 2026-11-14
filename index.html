@@ -159,6 +159,9 @@ input[type=number],input[type=text]{background:#0b1220;border:1px solid var(--li
 .plan div b{display:block;font-size:16px;color:var(--acc)}
 body[data-p="k"]{--acc:#f472b6;--acc2:#c084fc}
 #aquec{white-space:pre-line}
+.syin{display:block;width:100%;padding:12px;margin-bottom:8px;border-radius:10px;border:1px solid var(--line);background:#0b1220;color:var(--txt);font-size:16px;font-family:inherit}
+.sybtns{display:flex;gap:8px;margin-bottom:8px}
+.sybtns .btn{flex:1}
 .ver{text-align:center;color:var(--mut);font-size:12px;padding:18px 16px 4px}
 .perfis{display:flex;gap:6px;margin-bottom:12px;background:var(--card);padding:4px;border-radius:14px}
 .pf{flex:1;padding:10px 0;border:0;border-radius:11px;background:transparent;color:var(--mut);font-family:inherit;font-size:16px;font-weight:700}
@@ -202,6 +205,18 @@ body[data-p="k"]{--acc:#f472b6;--acc2:#c084fc}
     <button class="btn big" id="bImp" type="button">Importar backup</button>
     <p class="hint">Escolha o arquivo de backup. Isso substitui os dados atuais deste aparelho. Use para trocar de celular ou recuperar dados.</p>
     <input type="file" id="fImp" accept=".json,application/json" hidden>
+    <div class="sec2">Sincronizar na nuvem</div>
+    <p class="hint" id="syStatus"></p>
+    <div id="syLogin">
+      <input class="syin" type="email" id="syEmail" placeholder="E-mail" autocomplete="username" autocapitalize="none" autocorrect="off">
+      <input class="syin" type="password" id="syPass" placeholder="Senha (mínimo 6 caracteres)" autocomplete="current-password">
+      <div class="sybtns"><button class="btn big" id="syEntrar" type="button">Entrar</button><button class="btn big" id="syCriar" type="button">Criar conta</button></div>
+      <p class="hint">Cada pessoa usa o seu e-mail. Os dados (cargas, peso, medidas, ciclo e trocas) são salvos sozinhos na nuvem e voltam se o celular perder tudo. As fotos dos aparelhos não vão para a nuvem: use o backup em arquivo para elas.</p>
+    </div>
+    <div id="syLogado" hidden>
+      <button class="btn big" id="sySync" type="button">Sincronizar agora</button>
+      <button class="btn big" id="sySair" type="button" style="margin-top:8px">Sair da conta</button>
+    </div>
     <div class="sec2">Antes de começar</div>
     <p class="hint" id="aquec"></p>
   </div>
@@ -210,7 +225,7 @@ body[data-p="k"]{--acc:#f472b6;--acc2:#c084fc}
 <script>
 
 /* ---------- VERSAO (suba junto com a versao do cache em sw.js a cada atualizacao) ---------- */
-const VERSAO={n:9,data:'14/11/2026 11:10'};
+const VERSAO={n:10,data:'14/11/2026 13:30'};
 
 /* ---------- DADOS ---------- */
 const EX = {"leg": {"n": "Leg press 45°", "m": "Pernas e glúteos", "r": "3 x 12", "d": "Pés na largura dos ombros, na altura média da plataforma. Desça até os joelhos formarem uns 90° e empurre sem travar os joelhos no final. Lombar sempre colada no banco.", "a": {"h": [15, 32], "s": [22, 40], "p": [38, 62], "k": [60, 44], "f": [74, 60], "e": [32, 54], "w": [40, 56], "pr": [[78, 50, 78, 72], [10, 34, 36, 68]]}, "b": {"h": [15, 32], "s": [22, 40], "p": [38, 62], "k": [60, 51], "f": [82, 41], "e": [32, 54], "w": [40, 56], "pr": [[84, 30, 80, 54], [10, 34, 36, 68]]}}, "ext": {"n": "Cadeira extensora", "m": "Frente da coxa", "r": "3 x 12", "d": "Costas coladas no encosto, joelho alinhado com o eixo da máquina. Estenda a perna até quase esticar, segure 1 segundo e desça controlando. Sem balançar o corpo.", "a": {"h": [38, 14], "s": [38, 26], "p": [38, 52], "k": [62, 52], "f": [62, 76], "e": [44, 38], "w": [52, 50], "pr": [[30, 54, 68, 54], [32, 22, 32, 54]]}, "b": {"h": [38, 14], "s": [38, 26], "p": [38, 52], "k": [62, 52], "f": [88, 52], "e": [44, 38], "w": [52, 50], "pr": [[30, 54, 68, 54], [32, 22, 32, 54]]}}, "flex": {"n": "Mesa flexora", "m": "Parte de trás da coxa", "r": "3 x 12", "d": "Deitado de barriga para baixo, quadril colado no banco. Leve os calcanhares em direção ao bumbum e volte devagar (2 a 3 segundos). Não levante o quadril.", "a": {"h": [14, 50], "s": [24, 52], "p": [56, 52], "k": [82, 52], "f": [100, 52], "e": [30, 56], "w": [38, 56], "pr": [[8, 58, 96, 58]]}, "b": {"h": [14, 50], "s": [24, 52], "p": [56, 52], "k": [82, 52], "f": [78, 26], "e": [30, 56], "w": [38, 56], "pr": [[8, 58, 96, 58]]}}, "smith": {"n": "Agachamento no Smith", "m": "Pernas e glúteos", "r": "3 x 10", "d": "Barra apoiada nos ombros, pés um pouco à frente da barra. Desça como se fosse sentar, joelhos na direção dos pés, peito aberto. Suba empurrando o chão. Comece só com a barra.", "a": {"h": [58, 13], "s": [58, 24], "p": [58, 46], "k": [58, 63], "f": [58, 80], "e": [52, 32], "w": [56, 24], "pr": [[30, 6, 30, 80], [90, 6, 90, 80], [34, 24, 86, 24]]}, "b": {"h": [56, 32], "s": [54, 43], "p": [50, 64], "k": [66, 63], "f": [58, 80], "e": [60, 50], "w": [56, 43], "pr": [[30, 6, 30, 80], [90, 6, 90, 80], [34, 43, 86, 43]]}}, "pant": {"n": "Panturrilha em pé", "m": "Panturrilhas", "r": "3 x 15", "d": "Ponta dos pés na borda do degrau ou máquina. Suba o máximo que conseguir, segure 1 segundo e desça alongando bem. Movimento lento, sem quicar.", "a": {"h": [60, 14], "s": [60, 24], "p": [60, 48], "k": [60, 64], "f": [60, 76], "e": [60, 36], "w": [60, 48], "pr": [[46, 78, 76, 78], [46, 78, 46, 84], [76, 78, 76, 84]]}, "b": {"h": [60, 6], "s": [60, 16], "p": [60, 40], "k": [60, 56], "f": [60, 68], "e": [60, 28], "w": [60, 40], "x": [[60, 68, 66, 76]], "pr": [[46, 78, 76, 78], [46, 78, 46, 84], [76, 78, 76, 84]]}}, "sup": {"n": "Supino reto com halteres", "m": "Peito, ombro e tríceps", "r": "3 x 10", "d": "Deitado no banco, pés firmes no chão. Halteres na linha do peito, empurre para cima sem bater um no outro. Desça devagar até o cotovelo ficar na linha do tronco.", "a": {"h": [14, 52], "s": [26, 54], "p": [62, 54], "k": [80, 42], "f": [88, 58], "e": [30, 66], "w": [26, 50], "c": [[26, 48, 4]], "pr": [[8, 60, 100, 60]]}, "b": {"h": [14, 52], "s": [26, 54], "p": [62, 54], "k": [80, 42], "f": [88, 58], "e": [26, 40], "w": [26, 26], "c": [[26, 24, 4]], "pr": [[8, 60, 100, 60]]}}, "inc": {"n": "Supino inclinado na máquina", "m": "Parte de cima do peito", "r": "3 x 12", "d": "Ajuste o banco para as pegadas ficarem na altura do peito. Costas coladas, empurre à frente sem travar o cotovelo. Volte devagar até sentir o peito alongar.", "a": {"h": [28, 24], "s": [36, 34], "p": [40, 62], "k": [64, 62], "f": [64, 80], "e": [46, 48], "w": [54, 38], "pr": [[26, 26, 38, 64], [32, 64, 68, 64]]}, "b": {"h": [28, 24], "s": [36, 34], "p": [40, 62], "k": [64, 62], "f": [64, 80], "e": [56, 34], "w": [74, 30], "pr": [[26, 26, 38, 64], [32, 64, 68, 64]]}}, "des": {"n": "Desenvolvimento com halteres", "m": "Ombros", "r": "3 x 10", "d": "Sentado, costas retas. Halteres na altura das orelhas, empurre para cima até quase esticar os braços e desça controlando. Não arqueie a lombar.", "a": {"h": [40, 22], "s": [40, 34], "p": [40, 60], "k": [66, 60], "f": [66, 80], "e": [46, 44], "w": [44, 30], "c": [[44, 28, 4]], "pr": [[30, 62, 70, 62], [32, 30, 32, 62]]}, "b": {"h": [40, 22], "s": [40, 34], "p": [40, 60], "k": [66, 60], "f": [66, 80], "e": [44, 20], "w": [44, 6], "c": [[44, 4, 4]], "pr": [[30, 62, 70, 62], [32, 30, 32, 62]]}}, "lat": {"n": "Elevação lateral", "m": "Ombros (lateral)", "r": "3 x 12", "d": "Em pé, cotovelos levemente dobrados. Suba os braços para os lados até a altura dos ombros, como se derramasse água de um jarro. Halteres leves e sem balançar o corpo. (Desenho de frente)", "a": {"h": [60, 14], "s": [60, 24], "p": [60, 48], "k": [56, 64], "f": [56, 80], "e": [50, 36], "w": [48, 48], "x": [[60, 48, 64, 64], [64, 64, 64, 80], [60, 24, 70, 36], [70, 36, 72, 48]], "pr": [[50, 24, 70, 24]], "c": [[48, 50, 3], [72, 50, 3]]}, "b": {"h": [60, 14], "s": [60, 24], "p": [60, 48], "k": [56, 64], "f": [56, 80], "e": [44, 25], "w": [30, 25], "x": [[60, 48, 64, 64], [64, 64, 64, 80], [60, 24, 76, 25], [76, 25, 90, 25]], "pr": [[50, 24, 70, 24]], "c": [[28, 25, 3], [92, 25, 3]]}}, "tri": {"n": "Tríceps na polia (corda)", "m": "Parte de trás do braço", "r": "3 x 12", "d": "Cotovelos colados ao corpo e parados. Só o antebraço se move: estenda os braços para baixo, abrindo a corda no final, e volte devagar até 90°.", "a": {"h": [60, 14], "s": [60, 24], "p": [60, 48], "k": [60, 64], "f": [60, 80], "e": [60, 38], "w": [72, 34], "pr": [[80, 2, 72, 34], [76, 0, 84, 0]]}, "b": {"h": [60, 14], "s": [60, 24], "p": [60, 48], "k": [60, 64], "f": [60, 80], "e": [60, 38], "w": [62, 54], "pr": [[80, 2, 62, 54], [76, 0, 84, 0]]}}, "pux": {"n": "Puxada frontal", "m": "Costas e bíceps", "r": "3 x 12", "d": "Segure a barra mais larga que os ombros. Puxe a barra até a altura do queixo/peito levando os cotovelos para baixo e para trás, peito aberto. Volte devagar, sem dar tranco.", "a": {"h": [44, 24], "s": [44, 36], "p": [40, 62], "k": [66, 58], "f": [66, 80], "e": [50, 18], "w": [56, 4], "pr": [[44, 4, 70, 4], [57, 0, 57, 4], [54, 50, 72, 50]]}, "b": {"h": [44, 24], "s": [44, 36], "p": [40, 62], "k": [66, 58], "f": [66, 80], "e": [38, 46], "w": [54, 32], "pr": [[48, 32, 60, 32], [57, 0, 54, 32], [54, 50, 72, 50]]}}, "rem": {"n": "Remada baixa (triângulo)", "m": "Meio das costas", "r": "3 x 12", "d": "Sentado, pés na plataforma, joelhos levemente dobrados. Puxe o triângulo até o abdômen juntando as escápulas, sem jogar o tronco para trás. Volte devagar.", "a": {"h": [36, 26], "s": [36, 38], "p": [30, 64], "k": [58, 58], "f": [84, 64], "e": [56, 46], "w": [74, 52], "pr": [[74, 52, 102, 58], [86, 56, 86, 76]]}, "b": {"h": [36, 26], "s": [36, 38], "p": [30, 64], "k": [58, 58], "f": [84, 64], "e": [26, 52], "w": [50, 52], "pr": [[50, 52, 102, 58], [86, 56, 86, 76]]}}, "rmq": {"n": "Remada na máquina (peito apoiado)", "m": "Costas", "r": "3 x 12", "d": "Peito apoiado no apoio, pegada neutra. Puxe levando os cotovelos para trás e junte as escápulas. Segure 1 segundo e volte devagar até alongar as costas.", "a": {"h": [52, 24], "s": [46, 34], "p": [42, 62], "k": [66, 62], "f": [66, 80], "e": [62, 42], "w": [76, 40], "pr": [[54, 26, 54, 52], [32, 64, 70, 64]]}, "b": {"h": [52, 24], "s": [46, 34], "p": [42, 62], "k": [66, 62], "f": [66, 80], "e": [40, 46], "w": [60, 42], "pr": [[54, 26, 54, 52], [32, 64, 70, 64]]}}, "ros": {"n": "Rosca direta (barra ou halteres)", "m": "Bíceps", "r": "3 x 12", "d": "Em pé, cotovelos colados ao corpo. Suba a barra até o peito sem balançar e desça devagar. Se precisar jogar o corpo, a carga está alta.", "a": {"h": [60, 14], "s": [60, 24], "p": [60, 48], "k": [60, 64], "f": [60, 80], "e": [60, 38], "w": [62, 52], "c": [[62, 54, 4]]}, "b": {"h": [60, 14], "s": [60, 24], "p": [60, 48], "k": [60, 64], "f": [60, 80], "e": [60, 38], "w": [72, 32], "c": [[73, 30, 4]]}}, "abd": {"n": "Abdominal no solo", "m": "Abdômen", "r": "3 x 15", "d": "Deitado, joelhos dobrados, mãos leves atrás da cabeça. Suba só os ombros tirando as escápulas do chão, expirando. Não puxe o pescoço. Desça devagar.", "a": {"h": [16, 56], "s": [26, 60], "p": [56, 62], "k": [76, 46], "f": [88, 62], "e": [20, 50], "w": [14, 54], "pr": [[4, 66, 100, 66]]}, "b": {"h": [34, 42], "s": [32, 54], "p": [56, 62], "k": [76, 46], "f": [88, 62], "e": [30, 44], "w": [36, 38], "pr": [[4, 66, 100, 66]]}}};
@@ -258,7 +273,7 @@ function normaliza(){
   store=DB.perfis[DB.perfil];
 }
 function ler(){try{const x=localStorage.getItem(KEY);if(x)DB=JSON.parse(x);}catch(e){storageOK=false;}normaliza();}
-function gravar(){try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){storageOK=false;avisar();}}
+function gravar(){DB.atualizado=Date.now();try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){storageOK=false;avisar();}agendaSync();}
 function avisar(){document.getElementById('warn').style.display=storageOK?'none':'block';}
 function hojeISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function fmt(iso){const p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
@@ -710,11 +725,129 @@ $('fImp').onchange=ev=>{
   r.readAsText(f);
 };
 
+/* ---------- SINCRONIZACAO NA NUVEM (Supabase) ----------
+   Cada pessoa tem login proprio. As regras do banco (RLS) deixam cada login ver e alterar so a sua linha,
+   entao a chave publica abaixo pode ficar no codigo. Vale o dado mais recente (carimbo DB.atualizado). */
+const SB_URL='https://fxfdsckgtequkzikjbvp.supabase.co';
+const SB_KEY='sb_publishable_tkHdGJqw6BCzrll_fGZz9A_MuFlDwNw';
+const SYKEY='wikagym_sync';
+let sy={email:'',access:'',refresh:'',exp:0,pend:false,ult:''};
+let syTmr=null,syOcup=false,syTxt='';
+function syLer(){try{const x=localStorage.getItem(SYKEY);if(x)sy=Object.assign(sy,JSON.parse(x));}catch(e){}}
+function syGrava(){try{localStorage.setItem(SYKEY,JSON.stringify(sy));}catch(e){}}
+function atualizaRodape(){
+  const el=$('ver');if(!el)return;
+  el.textContent='Willka Gym · versão '+VERSAO.n+' · atualizado em '+VERSAO.data+' · nuvem: '+(!sy.access?'desligada':(sy.pend?'pendente':'ok'));
+}
+function syMsg(t){syTxt=t;const e=$('syStatus');if(e)e.textContent=t;atualizaRodape();}
+function syTela(){
+  const on=!!sy.access;
+  $('syLogin').hidden=on;$('syLogado').hidden=!on;
+  if(on&&!syTxt)syMsg('Conectado como '+sy.email+'.');
+  if(!on&&!syTxt)syMsg('Nuvem desligada. Entre para salvar seus dados fora do celular.');
+  atualizaRodape();
+}
+function syErro(m){
+  m=String(m||'');
+  if(/Invalid login/i.test(m))return 'e-mail ou senha incorretos.';
+  if(/already registered/i.test(m))return 'esse e-mail já tem conta. Toque em Entrar.';
+  if(/not confirmed/i.test(m))return 'confirme o e-mail que o Supabase enviou e tente de novo.';
+  if(/Failed to fetch|NetworkError|Load failed/i.test(m))return 'sem internet.';
+  return m;
+}
+async function syAuth(rota,corpo){
+  const r=await fetch(SB_URL+'/auth/v1/'+rota,{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(corpo)});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j.error_description||j.msg||j.message||('erro '+r.status));
+  return j;
+}
+function sySessao(j){sy.access=j.access_token;sy.refresh=j.refresh_token||sy.refresh;sy.exp=Date.now()+(j.expires_in||3600)*1000;syGrava();}
+async function syToken(){
+  if(!sy.access)throw new Error('sem login');
+  if(Date.now()>sy.exp-60000){
+    try{sySessao(await syAuth('token?grant_type=refresh_token',{refresh_token:sy.refresh}));}
+    catch(e){if(/Failed to fetch|NetworkError|Load failed/i.test(e.message))throw e;sy.access='';syGrava();syTela();throw new Error('sessão expirada, entre de novo');}
+  }
+  return sy.access;
+}
+async function syRest(metodo,query,corpo,extra){
+  const t=await syToken();
+  const r=await fetch(SB_URL+'/rest/v1/treino_dados'+query,{method:metodo,headers:Object.assign({apikey:SB_KEY,Authorization:'Bearer '+t,'Content-Type':'application/json'},extra||{}),body:corpo?JSON.stringify(corpo):undefined});
+  if(!r.ok)throw new Error('erro '+r.status);
+  return metodo==='GET'?r.json():null;
+}
+function syPacote(){
+  const c={perfil:DB.perfil,atualizado:DB.atualizado||0,perfis:{}};
+  Object.keys(DB.perfis).forEach(p=>{const x=Object.assign({},DB.perfis[p]);x.fotos={};c.perfis[p]=x;});
+  return c;
+}
+async function syEnviar(){
+  await syRest('POST','?on_conflict=user_id',{perfil:DB.perfil,dados:syPacote()},{Prefer:'resolution=merge-duplicates,return=minimal'});
+  sy.pend=false;sy.ult=new Date().toISOString();syGrava();
+}
+async function syBuscar(){const l=await syRest('GET','?select=dados,atualizado_em&limit=1');return l&&l[0]||null;}
+function aplicaRemoto(d){
+  const novo={perfil:DB.perfil,atualizado:d.atualizado||0,perfis:d.perfis||{}};
+  Object.keys(novo.perfis).forEach(p=>{novo.perfis[p].fotos=(DB.perfis[p]&&DB.perfis[p].fotos)||{};});
+  DB=novo;normaliza();aplicaPerfil(DB.perfil);
+  try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}
+  render();
+}
+function syHora(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+async function sincronizar(){
+  if(!sy.access||syOcup)return;
+  syOcup=true;
+  try{
+    syMsg('Sincronizando...');
+    const r=await syBuscar();
+    const loc=DB.atualizado||0,rem=(r&&r.dados&&r.dados.atualizado)||0;
+    if(!r||loc>rem||(sy.pend&&loc>=rem)){await syEnviar();}
+    else if(rem>loc){aplicaRemoto(r.dados);sy.pend=false;sy.ult=new Date().toISOString();syGrava();}
+    else{sy.pend=false;syGrava();}
+    syMsg('Conectado como '+sy.email+'. Sincronizado às '+syHora()+'.');
+  }catch(e){
+    sy.pend=true;syGrava();
+    syMsg('Não sincronizou ('+syErro(e.message)+'). Os dados estão salvos no celular e vão para a nuvem quando der.');
+  }finally{syOcup=false;atualizaRodape();}
+}
+function agendaSync(){
+  if(!sy.access)return;
+  sy.pend=true;syGrava();atualizaRodape();
+  clearTimeout(syTmr);syTmr=setTimeout(sincronizar,2500);
+}
+async function syEntrar(criar){
+  const email=$('syEmail').value.trim(),senha=$('syPass').value;
+  if(!email||senha.length<6){syMsg('Digite o e-mail e uma senha de pelo menos 6 caracteres.');return;}
+  try{
+    syMsg(criar?'Criando conta...':'Entrando...');
+    const j=criar?await syAuth('signup',{email:email,password:senha}):await syAuth('token?grant_type=password',{email:email,password:senha});
+    if(!j.access_token){syMsg('Conta criada. Confirme o e-mail que o Supabase enviou e depois toque em Entrar.');return;}
+    sy.email=email;sySessao(j);$('syPass').value='';
+    const r=await syBuscar();
+    if(r&&r.dados&&r.dados.atualizado){
+      if(confirm('Esta conta já tem dados na nuvem. Usar os dados da nuvem neste aparelho?\n\nOK: troca os dados deste aparelho pelos da nuvem.\nCancelar: mantém os deste aparelho e envia para a nuvem.')){aplicaRemoto(r.dados);sy.pend=false;sy.ult=new Date().toISOString();syGrava();}
+      else{DB.atualizado=Date.now();try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}await syEnviar();}
+    }else{await syEnviar();}
+    syTxt='';syMsg('Conectado como '+email+'. Sincronizado às '+syHora()+'.');syTela();
+  }catch(e){syMsg('Não consegui entrar: '+syErro(e.message));}
+}
+function sySair(){
+  if(!confirm('Sair da conta? Os dados continuam neste aparelho e na nuvem.'))return;
+  clearTimeout(syTmr);sy={email:'',access:'',refresh:'',exp:0,pend:false,ult:''};syGrava();syTxt='';syTela();
+}
+$('syEntrar').onclick=()=>syEntrar(false);
+$('syCriar').onclick=()=>syEntrar(true);
+$('sySync').onclick=()=>{sincronizar();};
+$('sySair').onclick=sySair;
+window.addEventListener('online',()=>{sincronizar();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)sincronizar();});
+
 /* ---------- INICIO ---------- */
-ler();aplicaPerfil(DB.perfil);$('ver').textContent='Willka Gym · versão '+VERSAO.n+' · atualizado em '+VERSAO.data;
+ler();aplicaPerfil(DB.perfil);syLer();syTela();
 const dias=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
 const d=new Date();$('hoje').textContent=dias[d.getDay()]+', '+fmt(hojeISO());
 avisar();render();
+if(sy.access)sincronizar();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
 </script>
 </body>
