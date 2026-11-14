@@ -613,18 +613,62 @@ document.addEventListener('error',e=>{
   w.classList.add('sem');w.innerHTML=PH;
 },true);
 
-/* ---------- DESCANSO ---------- */
-let tmr=null;
-$('timer').onclick=()=>{
-  const b=$('timer');
-  if(tmr){clearInterval(tmr);tmr=null;b.textContent='Descanso 60s';return;}
-  let t=60;b.textContent='Descansando '+t+'s (toque p/ parar)';
-  tmr=setInterval(()=>{
-    t--;
-    if(t<=0){clearInterval(tmr);tmr=null;b.textContent='Descanso 60s';try{navigator.vibrate&&navigator.vibrate([300,150,300]);}catch(e){}alert('Descanso acabou. Próxima série!');}
-    else b.textContent='Descansando '+t+'s (toque p/ parar)';
-  },1000);
-};
+/* ---------- DESCANSO ----------
+   O relogio usa a hora de termino (nao conta segundos), entao continua certo depois de tela
+   bloqueada ou troca de app. Um audio de 60 s (silencio + 3 bipes no fim) toca junto:
+   no iPhone o audio segue tocando com a tela bloqueada e avisa o fim do descanso. */
+const DESC=60,TKEY='wikagym_tfim';
+let tmr=null,tFim=0,tAudio=null,tUrl=null;
+function wavDescanso(seg){
+  const sr=8000,n=seg*sr,buf=new ArrayBuffer(44+n),v=new DataView(buf);
+  const w=(o,t)=>{for(let i=0;i<t.length;i++)v.setUint8(o+i,t.charCodeAt(i));};
+  w(0,'RIFF');v.setUint32(4,36+n,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,sr,true);v.setUint32(28,sr,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,'data');v.setUint32(40,n,true);
+  const b=new Uint8Array(buf,44);b.fill(128);
+  for(let k=0;k<3;k++){const ini=Math.round((seg-1.5+k*0.5)*sr);for(let i=0;i<0.25*sr;i++)b[ini+i]=128+Math.round(110*Math.sin(2*Math.PI*880*i/sr));}
+  return URL.createObjectURL(new Blob([buf],{type:'audio/wav'}));
+}
+function tSom(){
+  try{
+    if(!tAudio){tUrl=wavDescanso(DESC);tAudio=new Audio(tUrl);tAudio.preload='auto';}
+    tAudio.currentTime=0;
+    const p=tAudio.play();if(p&&p.catch)p.catch(()=>{});
+    if('mediaSession' in navigator){
+      navigator.mediaSession.metadata=new MediaMetadata({title:'Descanso',artist:'Willka Gym'});
+      navigator.mediaSession.setActionHandler('pause',tParar);
+      navigator.mediaSession.setActionHandler('stop',tParar);
+    }
+  }catch(e){}
+}
+function tParar(){
+  clearInterval(tmr);tmr=null;tFim=0;
+  try{localStorage.removeItem(TKEY);}catch(e){}
+  try{if(tAudio){tAudio.pause();tAudio.currentTime=0;}}catch(e){}
+  $('timer').textContent='Descanso '+DESC+'s';
+}
+function tTick(){
+  if(!tFim)return;
+  const falta=tFim-Date.now();
+  if(falta<=0){
+    const recente=-falta<5000;
+    tParar();
+    try{navigator.vibrate&&navigator.vibrate([300,150,300]);}catch(e){}
+    if(recente&&!document.hidden)alert('Descanso acabou. Próxima série!');
+    return;
+  }
+  $('timer').textContent='Descansando '+Math.ceil(falta/1000)+'s (toque p/ parar)';
+}
+function tIniciar(){
+  tFim=Date.now()+DESC*1000;
+  try{localStorage.setItem(TKEY,String(tFim));}catch(e){}
+  tSom();tTick();clearInterval(tmr);tmr=setInterval(tTick,250);
+}
+$('timer').onclick=()=>{if(tmr){tParar();return;}tIniciar();};
+/* ao voltar para o app (tela desbloqueada, troca de app, reabertura) acerta o relogio */
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)tTick();});
+window.addEventListener('pageshow',()=>tTick());
+window.addEventListener('focus',()=>tTick());
+(function(){try{const f=parseInt(localStorage.getItem(TKEY),10);if(f&&f>Date.now()){tFim=f;tTick();tmr=setInterval(tTick,250);}else localStorage.removeItem(TKEY);}catch(e){}})();
 
 /* ---------- CONFIGURACOES ---------- */
 $('aquec').textContent=AQUEC;
